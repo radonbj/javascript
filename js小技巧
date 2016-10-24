@@ -1,1 +1,7 @@
 奇偶数判断：5&1？alert('奇'):alert('偶');
+
+通过bind()给setInterval传入this: 由于setInterval是window的方法，在setInterval中的this也都是默认指向window，而很多时候这都不是我们想要的。
+现在我们可以这样:
+setInterval(function(){
+     alert(this)
+   }.bind(this),1000)
