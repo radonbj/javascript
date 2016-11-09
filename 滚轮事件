@@ -1,0 +1,29 @@
+//绑定鼠标滚轮事件
+if(document.addEventListener){
+	document.addEventListener('DOMMouseScroll',scrollFunc,false);
+}//W3C
+window.onmousewheel=document.onmousewheel=scrollFunc;//IE/Opera/Chrome
+
+//滚轮事件1
+	function scrollFunc(e){
+
+		var direct=0;
+		e=e || window.event;
+	   
+		
+		if(e.wheelDelta){//IE/Opera/Chrome
+			direct=e.wheelDelta;
+		}else if(e.detail){//Firefox
+			direct=-1*e.detail;
+		}
+		
+		if(direct<0){
+			$(".inner-page-out").stop().animate({"scrollTop":$(".inner-page-out").scrollTop()*1+100},400);
+		}else{
+			$(".inner-page-out").stop().animate({"scrollTop":$(".inner-page-out").scrollTop()*1-100},400);
+		}
+			
+		
+		
+		
+	}
