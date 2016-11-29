@@ -1,0 +1,60 @@
+html: <input type="file" id="file" />
+	    <div id="imgaes"></div>
+
+;(function(root){		  
+    function ImagePreview(params){   	
+       var _this = this;		 
+        this.file = document.getElementById(params.dom);
+         this.imgbox = document.getElementById(params.obj);
+        this.img = new Image();
+
+        this.file.onchange=function(){
+            _this.core(this);
+        }
+    }
+
+    ImagePreview.prototype.core=function(t){
+        var _this = this;
+        if(window.FileReader){
+
+           var fileReader = new FileReader();
+           fileReader.readAsDataURL(t.files[0]); 
+           fileReader.onload=function(e){ 
+                var ev = e || window.event;
+                _this.img.src = ev.target.result; 
+
+            }
+       }else if(document.all){
+
+           if(!-[1,] && !window.XMLHttpRequest){ 
+                this.img.src = t.value; 
+           }else{
+        	   t.select();
+        	   t.blur();
+        	   var imgurl = document.selection.createRange().text;
+               this.imgbox.style.filter = 'progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod = "scale",src="'+ imgurl +'")'; 
+               return false;
+           }
+
+        }else{
+
+            if(this.file.files){  
+                var url = this.file.files[0].getAsDataURL();
+                this.img.src = url;
+            }else{ 
+               this.img.src = t.value;
+          }
+
+        }
+
+        this.imgbox.appendChild(this.img);
+    }
+
+    root.ImagePreview=function(p){
+        new ImagePreview(p);
+   }
+
+})(window)
+
+调用：ImagePreview({'dom':'file','obj':'imgaes'});
+dom为上传控件id，objd为图片展示区的id
