@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+		body, html{
+			overflow: hidden;
+			position: relative;
+		}
+		.main{
+			width: 100%;
+			overflow: hidden;
+			position: relative;
+		}
+		.main div{
+			width: 100%;
+			height: 1080px;
+			position: relative;
+			overflow:hidden;
+		}
+		.main p{
+			width: 100%;
+			height: 1080px;
+		}
+		.page1{
+			background: #333;
+		}
+		.page2{
+			background: #666;
+		}
+		.page3{
+			background: #111;
+		}
+		.page4{
+			background: #223366;
+		}
+		.page5{
+			background: #445566;
+		}
+		.page6{
+			background: #886;
+		}
+	</style>
+</head>
+<body>
+	<div class="main">
+		<div class="page1"><p></p></div>
+		<div class="page2"><p></p></div>
+		<div class="page3"><p></p></div>
+		<div class="page4"><p></p></div>
+		<div class="page5"><p></p></div>
+		<div class="page6"><p></p></div>
+		<ul class="left-nav">
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+		</ul>
+	</div>
+	<script src="jquery-3.1.1.min.js"></script>
+	<script>
+//		页面布局好 所有除了全屏翻页的JS都写好
+//点击导航时翻页效果正常后再来调 scrollPage(obj) 这个方法
+//页面的翻页动作一定是只绑在导航上，鼠标滚轮不用管
+//最外层元素是overflow：hidden，不要出现滚动条，内部有弹窗需要滚动条的，单独给弹窗加滚动条事件，注意加阻止冒泡。
+     
+    //获取对应事件名
+    function bindEvent() {
+        var a = [],
+            b = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(navigator.userAgent.toLowerCase()),//用正则匹配当前浏览设备是否为移动端
+            c = b ? "touchstart" : "mousedown",//根据当前浏览设备选择需要事件 C D E都是选择事件类型，左为移动端，右为PC端
+            d = b ? "touchmove" : "mouseup",
+            e = b ? "touchend" : "mouseup";
+        a = [b, c, d, e];//将选浏览设备的判断值b 以及选择的事件类型 c d e 保存到a中 方便获取
+        return a
+    }
+    var phoneHoverBuff = 0;//用于判断当前touch是否为一个完整的 touchstart--->touchmove--->touchend,touchstart只在触摸屏幕时触发，touchend只在触摸点离开屏幕时触发，touchmove会在触摸点移动时多次触发，phoneHoverBuff存在目的就是确保绑定touchmove事件在一次完整的touch事件中只触发一次
+    var startPoint = [];//触摸开始点的x,y坐标
+    var endPoint = [];//触摸结束点的x,y坐标
+    var movePoint = [];//移动时的x,y坐标  这个数组一般用在连续触发touchmove事件时用 计算上次移动点与当前移动点的偏移量
+    //获取触摸偏移量的方法
+    function getMousePos(point) {
+        var a = [],
+            e = event || window.event,
+            scrollX = document.documentElement.scrollLeft || document.body.scrollLeft,//获取X轴滚动条位置     ||是确保浏览器兼容性  虽然取值方法不同 但最后取到的值都是一样的
+            scrollY = document.documentElement.scrollTop || document.body.scrollTop,//获取Y轴滚动条位置
+            x = e.pageX || e.clientX + scrollX || window.event.touches[0].pageX,//获取触摸点X轴位置
+            y = e.pageY || e.clientY + scrollY || window.event.touches[0].pageY;//获取触摸点Y轴位置
+        if (point == "startPoint") {
+            startPoint = [x, y]
+        } else {
+            if (point == "endPoint") {
+                endPoint = [x, y]
+            } else {
+                if (point == "movePoint") {
+                    movePoint = [x, y]
+                }
+            }
+        }
+        a = [x, y];
+        return a
+    }
+    //页面scroll清零
+    function clearScrollTop(){
+         
+        $("body,html").stop().animate({"scrollTop":0},20,function(){});
+        clear_mk++;
+        if(clear_mk<50){
+            setTimeout(clearScrollTop,20)
+        }else{
+             
+        }
+    }
+     
+     
+    var choiceEvent = bindEvent(),//获取对应事件并保存在choiceEvent里
+        ev = event || window.event,//获取event对象
+        clear_mk=0;
+     
+    clearScrollTop();
+     
+     
+     
+    function scrollPage(obj){
+    /****
+    pages：每屏元素的JQ对象
+    nav：导航按钮的JQ对象
+    innerHeight：每屏内容高度,分别设定则传入数组，同一设定直接填高度，或者只有一个值的数组，按照px计算，不要单位
+    scroll_speed:在没有展示完全时，每次滑动的偏移量 （一次touchmove或者scroll，一次完整的touch事件会触发多次touchmove 滚动一次滚轮也会触发多次scroll）
+     
+    ****/
+        var scroll_lock=0,
+        nowIndex=0,
+        l_nav_li=obj.nav,
+        pages=obj.pages,
+        max_up=0,
+        max_down=0,
+        phoneHoverBuff=0,
+        innerHeight=obj.innerHeight,
+        innerHeight_type=0,
+        scroll_speed=obj.scroll_speed || 20;
+         
+        //给每一页添加_pageIndex属性
+        for(var i=0;i<pages.length;i++){
+            pages.eq(i).attr("_pageIndex",i);
+        }        
+        if(typeof innerHeight!="object"){
+            var _innerHeight=innerHeight;
+            innerHeight=[];
+            innerHeight=[_innerHeight];
+        }
+        if(innerHeight.length==1){
+            var _innerHeight=innerHeight[0];
+            for(var i=0;i<pages.length;i++){
+                innerHeight[i]=_innerHeight;
+            }
+        }
+        
+        //设置每一页的高度 IE7因为overflow存在bug 所以每一页高度设置为内容高度
+        function pages_height_set(){
+            if(navigator.userAgent.indexOf("MSIE 7.0") > 0){
+                for(var i=0;i<innerHeight.length;i++){
+                    pages.eq(i).css({"height":innerHeight[i]+"px"});
+                }
+                return;
+            }else{
+                pages.css({"height":$(window).height()+"px"});
+                 
+            }
+        }
+         
+        pages_height_set();
+         
+        $(window).resize(function(){
+            pages_height_set();
+        });
+         
+        //滚轮事件1
+        function scrollFunc(e){ 
+            var _this=$(this);  
+            if(scroll_lock==1){
+                return false;
+            }
+            var direct=0;
+            e=window.event;
+            if(e.wheelDelta){//IE/Opera/Chrome
+                direct=e.wheelDelta;
+            }else if(e.detail){//Firefox
+                direct=-1*e.detail;
+            }			
+            if($(window).height()<innerHeight[nowIndex]){
+          
+               if(direct<0){//向下翻
+				  
+                    max_up=0
+                    if(_this.scrollTop()+scroll_speed<(innerHeight[nowIndex]-$(window).height())){//判断是否翻到当前页底部
+						
+                        _this.scrollTop(_this.scrollTop()+scroll_speed);//未到底部 滚动内置滚动条
+						
+                        return;
+                    }else{                        
+                        if(innerHeight[nowIndex]*1!=$(window).height()*1){
+                            if(max_down!=0){//当标记为已翻到底部时 每触发一次下翻页标记累加 10次后翻页
+                                if(max_down<10){
+                                    max_down++;
+                                    return;
+                                }
+                            }else{//标记为已翻到底部
+                                _this.scrollTop(innerHeight[nowIndex]-$(window).height());
+                                max_down=1;
+                                return;
+                            }
+                        }
+                    }   
+                }else{//向上翻					
+                    max_down=0
+                    if(_this.scrollTop()-scroll_speed>0){//判断是否翻到当前页顶部
+                        _this.scrollTop(_this.scrollTop()-scroll_speed);//未到顶部 滚动内置滚动条
+                         
+                        return;
+                    }else{
+                        if(innerHeight[nowIndex]*1!=$(window).height()*1){
+                            if(max_up!=0){//当标记为已翻到顶部时 每触发一次上翻页标记累加 10次后翻页
+                            if(max_up<10){
+                                    max_up++;
+                                    return;
+                                }
+                            }else{//标记为已翻到顶部
+                                _this.scrollTop(0);
+                                max_up=1;
+                                return;
+                            }   
+                        }
+                         
+                    }
+                } 
+            }else{
+            }         
+            //向上或向下标记累加到10后 触发翻页 并重置 标记
+            max_up=0;
+            max_down=0; 
+             
+             
+            if(direct<0){//向下翻
+                if(nowIndex<pages.length-1){
+                    nowIndex++
+                }else{
+                    return;
+                }       
+            }else{//向上翻
+                if(nowIndex>0){
+                    nowIndex--
+                }else{
+                    return;
+                }
+            }
+             
+            scroll_lock=1;
+            setTimeout(function(){scroll_lock=0},500);
+            l_nav_li.eq(nowIndex).trigger("click");
+            max_up=0;
+            max_down=0;
+             
+        }
+         
+         
+        //触屏事件或鼠标拖动事件
+        pages.on(choiceEvent[1], function() {//绑定touchstart事件
+            var ev = event || window.event;
+            getMousePos("startPoint");
+            phoneHoverBuff = 1;//phoneHoverBuff记录一次完整touch的开始
+        });
+        pages.on(choiceEvent[2], function() {//绑定touchmove事件    下面没有写touchend事件的绑定  因为不常用 需要可以自己补全 和这个两个方法绑定相同
+            var ev = event || window.event;
+            var _this=$(this);
+            ev.preventDefault();//阻止默认事件  e.g: 让A标签不跳转 button无效  submit不提交 checkbox无法勾选等 touchstart事件中添加阻止默认事件可能会导致touchend事件不被触发
+            getMousePos("endPoint");
+            var xAxis = endPoint[0] - startPoint[0],//touchmove在X轴上的偏移量
+                yAxis = endPoint[1] - startPoint[1];//touchmove在Y轴上的偏移量
+                 
+            if ((((xAxis * xAxis) < (yAxis * yAxis))&&phoneHoverBuff==1)) {//因为偏移量可能为负值 所以取平方 并且比较X,Y轴偏移量平方的大小，确定在哪个轴上移动的多 调用对应JS  上下翻页就改下判断和下面的取值就可以了  yAxis 是Y轴偏移量
+               //手指从上往下滑
+                if (yAxis >10){
+                   max_down=0
+                    if(_this.scrollTop()-scroll_speed>0){
+                        _this.scrollTop(_this.scrollTop()-scroll_speed);
+                        return;
+                    }else{
+                        if(innerHeight[nowIndex]*1!=$(window).height()*1){
+                            if(max_up!=0){
+                                if(max_up<50){
+                                    max_up++;
+                                    return;
+                                }
+                            }else{
+                                _this.scrollTop(0);
+                                max_up=1;
+                                return;
+                            }       
+                        }
+                    }
+                } 
+                //手指从下往上滑
+                else if(yAxis < (-10)) {
+                    max_up=0
+                    if(_this.scrollTop()+scroll_speed<(innerHeight[nowIndex]-$(window).height())){
+                        _this.scrollTop(_this.scrollTop()+scroll_speed);
+                        return;
+                    }else{
+                        if(innerHeight[nowIndex]*1!=$(window).height()*1){
+                            if(max_down!=0){
+                                if(max_down<50){
+                                    max_down++;
+                                    return;
+                                }
+                            }else{
+                                _this.scrollTop(innerHeight[nowIndex]-$(window).height());
+                                max_down=1;
+                                return;
+                            }
+                        }
+                    }
+                }else{
+                    return;
+                }
+				
+                max_up=0;
+                max_down=0;
+                
+                if(yAxis < (-10)){//向下翻
+                    if(nowIndex<pages.length-1){
+                        nowIndex++
+                    }else{
+                        return;
+                    }       
+                }else if(yAxis > (10)){//向上翻
+                    if(nowIndex>0){
+                        nowIndex--
+                    }else{
+                        return;
+                    }
+                }else{
+                    return;
+                }
+                 
+                scroll_lock=1;
+                setTimeout(function(){scroll_lock=0},500);
+                l_nav_li.eq(nowIndex).trigger("click");
+                max_up=0;
+                max_down=0;
+                 
+              
+                phoneHoverBuff = 0;//一次touchmove完成后 如果整个touch事件没有结束 下次touchmove将无法触发上面的JS 因为if里面判断为false 这样就能确保touchmove里的JS在一次完整的touch事件中只调用一次
+            }
+        });
+         
+        pages.on(choiceEvent[3],function(){
+             phoneHoverBuff = 1;
+        });
+        //绑定鼠标滚轮事件
+        if(document.addEventListener){
+            pages.on('DOMMouseScroll',scrollFunc);
+        }
+            pages.on("mousewheel",scrollFunc)//IE/Opera/Chrome
+             
+             
+             
+             
+        var ThrowObject=new Object({
+            lockOrUnlock:function(type){
+                if(type){
+                    scroll_lock=1;
+                }else{
+                    scroll_lock=0
+                }
+            },
+            setNowIndex:function(num){
+                nowIndex=num;
+            }
+        });
+        return ThrowObject;
+    }
+		
+		function showPage(num){
+			scroll_lock=1;
+			$("body,html").stop().animate({"scrollTop":$(".main div").eq(num).offset().top},500,function(){scroll_lock=0;});
+		}
+		$('.left-nav li').on('click',function(){
+			showPage($(this).index());
+		});
+    
+    //调用
+    var scrollPage0=scrollPage({"pages":$(".main div"),"nav":$(".left-nav li"),"innerHeight":[1080,1080,1080,1080,1080,1080]}); 
+	</script>
+</body>
+</html>
+
+
+注意：
+  全屏滚动的每一屏需要加overflow:hidden;，innerHeight的高度为内容的高度，没有内容时不能大于外层的高度
