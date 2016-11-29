@@ -1,0 +1,116 @@
+function paging(msg){
+				 if(!msg.ID){return false};//如果没传入目标点，不执行
+
+				 var ID = msg.ID;
+				 var current_page = msg.current_page || 1;
+				 var pageCount = msg.pageCount || 1;
+				 var callBack = msg.callBack || function(){};
+
+			        if(current_page > 3 && pageCount > 5){
+						$(ID).append('<li>首页</li>');
+					}
+			        if(current_page > 1 && pageCount > 1){
+						$(ID).append('<li>上一页</li>');
+					}
+					if(pageCount <= 5){
+						for(var i = 1;i <= pageCount;i++){
+							if(i == current_page){
+								$(ID).append('<li>'+ i +'</li>');
+							}else{
+								$(ID).append('<li>['+ i +']</li>');
+							}
+						}
+					}else{
+						for(var i = 1;i <= 5;i++){
+							if(current_page == 1 || current_page == 2){
+								    if(i == current_page){
+										$(ID).append('<li>'+ i +'</li>');
+									}else{
+									    $(ID).append('<li>['+ i +']</li>');
+									}
+								}else if(pageCount - current_page == 0 || pageCount - current_page == 1){
+									if(pageCount - current_page == 0 && i == 5){
+										$(ID).append('<li>'+ parseInt( pageCount-5+i ) +'</li>');
+									}else if(pageCount - current_page == 1 && i == 4){
+										$(ID).append('<li>'+ parseInt( pageCount-5+i ) +'</li>');
+									}else{
+									    $(ID).append('<li>['+ parseInt( pageCount-5+i ) +']</li>');
+									}
+								}else{
+									if(i == 3){
+										$(ID).append('<li>'+ parseInt( current_page-3+i )+'</li>');
+									}else{
+										$(ID).append('<li>['+ parseInt( current_page-3+i )+']</li>');
+									}
+								}
+						}
+					}
+			if(pageCount - current_page > 0 && pageCount > 1){
+						$(ID).append('<li>下一页</li>');
+					}
+			if(pageCount - current_page > 2 && pageCount > 5){
+						$(ID).append('<li>尾页</li>');
+					}				
+
+				$(ID).children('li').each(function(i){
+					$(this).on('click',function(){
+						if($(this).text() == '上一页'){
+							$(ID).html(' ');
+							paging({
+								  ID : msg.ID,
+								  current_page : parseInt(current_page)-1,
+								  pageCount : pageCount,
+								  callBack : callBack
+							});
+							callBack(parseInt(current_page)-1,pageCount);
+						}else if($(this).text() == '下一页'){
+							$(ID).html(' ');
+							paging({
+								  ID : msg.ID,
+								  current_page : parseInt(current_page)+1,
+								  pageCount : pageCount,
+								  callBack : callBack
+							});
+							callBack(parseInt(current_page)+1,pageCount);
+						}else if($(this).text() == '首页'){
+							$(ID).html(' ');
+							paging({
+								  ID : msg.ID,
+								  current_page : 1,
+								  pageCount : pageCount,
+								  callBack : callBack
+							});							
+							callBack(1,pageCount);
+						}else if($(this).text() == '尾页'){
+							$(ID).html(' ');
+							paging({
+								  ID : msg.ID,
+								  current_page : pageCount,
+								  pageCount : pageCount,
+								  callBack : callBack
+							});							
+							callBack(pageCount,pageCount);
+						}else{						 
+							if(/(\d+)/.test($(this).text())){current_page=RegExp.$1}
+							$(ID).html(' ');
+							paging({
+								  ID : msg.ID,
+								  current_page : current_page,
+								  pageCount : pageCount,
+								  callBack : callBack
+							})
+							callBack(current_page,pageCount);
+						}						
+					})
+				});
+			};
+      
+      使用：
+      paging({
+         ID : '.paging1',//目标元素
+         current_page : 1,//当前页
+         pageCount : page1 || 1 ,//总页数
+         callBack : function(current_page,pageCount){//回调函数
+           alert(current_page+","+pageCount);			   			                  		  
+         }
+	    });
