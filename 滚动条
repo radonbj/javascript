@@ -1,0 +1,85 @@
+  基本思路：内容区的高度/显示区的高度 = 滚动条块的高度
+           滚动条的距离/（内容区的高度-显示区的高度）*(滚动条的高度-滚动块的高度) = 滚动条移动的距离
+  
+  .div1{width:500px;height:300px;margin:0 auto;overflow:hidden;border:1px solid rgb(18, 18, 18);}
+  .div2{width:470px;display:inline-block;}
+  .div3{width:20px;height:300px;display:inline-block;position:relative;top:0;left:0;background:#289f9f;float:right;}
+  .div4{width:18px;border:1px solid #666;background:#ccc;height:30px;display:inline-block;position:absolute;top:0;left:0;}
+ <div class="div1">
+   <div class="div2">
+遥想一千七百年前，苍天已死，汉家将亡，各路人杰风云际会，兴也忽焉，亡也忽焉，到曹、孙、刘赤壁大战，诸葛孔明初出茅庐，一叶扁舟过江口战东吴群儒，力促孙刘合力，打跑了老曹瓜分荆州，后老刘带队入川，占益州，还没来得及稳固政权，老孙翻脸，赢了，夺了荆州，老刘翻脸，败了，魂断白帝城，孔明受任败军之际，奉命危难之间，挽狂澜于既倒，扶大厦于将倾，内忧外患，南征北伐，十年劳苦，换得五丈原一声长叹，出师未捷身先死，长使英雄泪满襟，这段历史经后世一再编改，任谁都能信口说上一段，千古多少伤心事，今时今日，倒成了人民喜闻乐见的旅游项目，多少英才豪杰 ，也都成了祠内供人指点的殿内塑像，喜气洋洋的人流常有，为之抹泪的英雄恐难再有。
+</div
+<div class="div3">
+  <div class="div4">
+>
+</div>
+</div>       
+
+$('.div4').on('mousedown',function(){
+var x=event.clientX-$('.div4').offset().left; 
+var y=event.clientY-$('.div4').offset().top;  
+$(document).on('mousemove',function(){
+var l=event.clientX-x;
+var t=event.clientY-y; 
+setTop(t);
+}); 
+ $(document).on('mouseup',function(){
+$(document).off('mousemove');
+$(document).off('mouseup');
+ });
+ return false;
+ });
+var obj=document.getElementsByClassName('div2')[0];
+   mouseWheel($('.div2')[0],function(bDown){
+var n=$('.div4')[0].offsetTop;
+if(bDown){
+n+=3;
+}else{
+n-=3;
+}
+setTop(n);
+});
+function setTop(t){
+(t < 0) ? t=0 : t=t;
+(t > 270) ? t=270 :t=t;
+var h1 = $('.div4').height();
+var h2 = $('.div3').height();
+var w=t/(h2-h1)*($('.div2').height()-$('.div1').height());
+$('.div4').css('top',t+'px');
+$('.div2').css('marginTop',-w+'px');
+}
+
+ function addEvent(obj,ev,fn){
+if(obj.addEventListener){
+obj.addEventListener(ev,fn,false)
+}else{
+obj.attachEvent('on'+ev,fn)
+}
+}
+
+function mouseWheel(obj,fn){
+function wheel(ev){
+var bDown=true;
+var oEvent=ev||event;
+if(oEvent.detail){
+if(oEvent.detail>0){
+bDown=true;
+}else{
+bDown=false;
+}
+}else{
+if(oEvent.wheelDelta>0){
+bDown=false;
+}else{
+bDown=true;
+}
+}
+fn&&fn(bDown);
+oEvent.preventDefault&&oEvent.preventDefault();
+return false;
+}
+if(window.navigator.userAgent.toLowerCase().indexOf('firefox')!=-1){
+obj.addEventListener('DOMMouseScroll',wheel,false);
+}
+addEvent(obj,'mousewheel',wheel);
+}
