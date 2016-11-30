@@ -1,7 +1,7 @@
 
-clientX/clientY:clientX 事件属性返回当事件被触发时鼠标指针向对于浏览器页面（或客户区）的水平坐标。与滚动条无关。
+clientX/clientY:clientX 事件属性返回当事件被触发时鼠标指针向对于浏览器页面（或客户区）的坐标。与滚动条无关。
 
-screenX/screenY:返回事件发生时鼠标指针相对于屏幕的水平坐标。
+screenX/screenY:设置或获取获取鼠标指针位置相对于用户屏幕的 x ,y坐标，是绝对位置。
 
 pageYOffset/pageXOffset:相当于scrollTop/scrollLeft，pageYOffset = (window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop;
 
@@ -11,6 +11,10 @@ layerX/layerY:相对于当前指向元素最近的有定位信息的元素的坐
             还是没有定位的话，就继续；一直到根元素——html节点。所以，在firefox中，想要offsetX值，就必须加入position定位信息！
             
 offsetLeft/offsetTop:元素相对于其直接父元素的偏移。因为是相对其直接父元素定位，因此可以使用div.offsetParent来查看其父元素是谁。返回其父元素。如果父元素是body，则返回body对象。
+
+offsetX/offsetY: 设置或获取鼠标指针位置相对于触发事件的对象的 x ,y坐标。 
+
+event.x y: 设置或获取鼠标指针位置相对于父文档的 x 像素坐标。
 
 offsetWidth/offsetHeight：元素的可见区大小，内容区+padding+border+滚动条,不包括margin。
 
