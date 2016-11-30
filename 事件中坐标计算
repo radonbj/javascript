@@ -1,0 +1,18 @@
+
+clientX/clientY:clientX 事件属性返回当事件被触发时鼠标指针向对于浏览器页面（或客户区）的水平坐标。与滚动条无关。
+
+screenX/screenY:返回事件发生时鼠标指针相对于屏幕的水平坐标。
+
+pageYOffset/pageXOffset:相当于scrollTop/scrollLeft，pageYOffset = (window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop;
+
+pageX/pageY：返回相对于页面的坐标，与滚动条有关。IE7，8不支持。
+
+layerX/layerY:相对于当前指向元素最近的有定位信息的元素的坐标。这个“有定位”是指有非默认定位的css属性（即非static）。如果，当前指向的元素就有定位，那么layerX与Y就返回相对于此元素的坐标；否则，就查看此元素的父标签；
+            还是没有定位的话，就继续；一直到根元素——html节点。所以，在firefox中，想要offsetX值，就必须加入position定位信息！
+            
+offsetLeft/offsetTop:元素相对于其直接父元素的偏移。因为是相对其直接父元素定位，因此可以使用div.offsetParent来查看其父元素是谁。返回其父元素。如果父元素是body，则返回body对象。
+
+offsetWidth/offsetHeight：元素的可见区大小，内容区+padding+border+滚动条,不包括margin。
+
+clientWidth/clientHeight:客户区大小指元素内容及其内边距所占空间的大小（border、滚动条不算在内）。
+
