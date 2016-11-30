@@ -383,11 +383,12 @@
         });
         return ThrowObject;
     }
-		
+		//翻页动画
 		function showPage(num){
 			scroll_lock=1;
 			$("body,html").stop().animate({"scrollTop":$(".main div").eq(num).offset().top},500,function(){scroll_lock=0;});
 		}
+		//翻页动作
 		$('.left-nav li').on('click',function(){
 			showPage($(this).index());
 		});
