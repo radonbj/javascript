@@ -184,7 +184,7 @@
             if(scroll_lock==1){
                 return false;
             }
-            var direct=0;
+            var direct=0,
             e=window.event;
             if(e.wheelDelta){//IE/Opera/Chrome
                 direct=e.wheelDelta;
