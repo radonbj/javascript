@@ -1,0 +1,65 @@
+实现原理：A元素和B元素相对于父元素的（X/Y）坐标进行比较。如果A的左边距大于B的右边距、A的右边距小于B左边距、A的上边距大于B的下边距、A的下边距小于B的
+          上边距，或者A的左边距小于B的右边距、A的右边距大于B左边距、A的上边距小于B的下边距、A的下边距大于B的上边距，这样就能判断A与B是否有重合。
+<div id="div1">div1</div>
+<div id="div2">div2</div>
+
+
+#div1{ width:100px; height:100px; background:red; position:absolute; left:0; top:0; z-index:2;}
+#div2{ width:100px; height:100px; background:blue; position:absolute; left:300px; top:200px; z-index:1;}
+
+
+
+window.onload=function(){
+	var oDiv=document.getElementById('div1');
+	var oDiv2=document.getElementById('div2');
+	
+	oDiv.onmousedown=function(ev){
+		var oEvent=ev || event;
+		
+		var disX=oEvent.clientX-oDiv.offsetLeft;
+		var disY=oEvent.clientY-oDiv.offsetTop;
+		
+		document.onmousemove=function(ev){
+			var oEvent=ev || event;
+			
+			oDiv.style.left=oEvent.clientX-disX+'px';
+			oDiv.style.top=oEvent.clientY-disY+'px';
+			
+			//检测碰撞
+			if(collTest(oDiv,oDiv2)){
+				oDiv2.style.background='yellow';	
+			}else{
+				oDiv2.style.background='blue';	
+			}	
+		}
+		document.onmouseup=function(){
+			document.onmousemove=null;
+			document.onmouseup=null;	
+			oDiv.releaseCapture && oDiv.releaseCapture();
+		}
+		oDiv.setCapture && oDiv.setCapture();
+		return false;	
+	}
+};
+function collTest(oDiv,oDiv2){
+	var l1=oDiv.offsetLeft;
+	var r1=oDiv.offsetLeft+oDiv.offsetWidth;
+	var t1=oDiv.offsetTop;
+	var b1=oDiv.offsetTop+oDiv.offsetHeight;
+	
+	var l2=oDiv2.offsetLeft;
+	var r2=oDiv2.offsetLeft+oDiv2.offsetWidth;
+	var t2=oDiv2.offsetTop;
+	var b2=oDiv2.offsetTop+oDiv2.offsetHeight;
+  //下面的两种判读方式都可以
+	/*if(r1<l2 || l1>r2 || b1<t2 || t1>b2){
+    return false;
+  }else{
+    return true;
+  }*/
+  if(r1>l2 && l1<r2 && b1>t2 && t1<b2){	
+		return true;
+	}else{
+		return false;	
+	}
+}
