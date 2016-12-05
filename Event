@@ -91,6 +91,17 @@ var EventUtil={
       }else{
          return event.keyCode;
       }
-   }
-		
+   },
+   
+   entrustEvent:function(btn,elem,event,fn){//事件委托				   
+	   function box(e){
+			var e = EventUtil.getEvent(e),
+			 target = e.srcElement || e.target;
+			if(target.tagName.toLowerCase() == elem){
+			   fn && fn(target);
+			   }
+		}
+		EventUtil.addEvent(btn,event,box);
+	}
+	//在回调函数中传入target，以取得当前触发的元素
 };
