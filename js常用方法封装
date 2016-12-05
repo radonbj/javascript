@@ -1,0 +1,582 @@
+function ZQuery(arg){
+	this.elements=[];
+	this.domString='';
+	
+	switch(typeof arg){
+		case 'function':
+			domReady(arg);
+			break;
+		case 'string':
+			if(arg.indexOf('<')!=-1){
+				this.domString=arg;
+			}else{
+				this.elements=getEle(arg);	
+			}
+			break;
+		default:
+			if(arg instanceof Array){
+				this.elements=arg;
+			}else{
+				this.elements.push(arg);	
+			}
+			break;
+	}	
+}
+
+
+ZQuery.prototype.css=function(name,value){
+	if(arguments.length==2){
+		for(var i=0; i<this.elements.length; i++){
+			this.elements[i].style[name]=value;
+		}
+	}else{
+		if(typeof name=='string'){
+			return getStyle(this.elements[0],name)
+		}else{
+			for(var i=0; i<this.elements.length; i++){
+				for(var j in name){
+					this.elements[i].style[j]=name[j];
+				}
+				
+			}	
+		}	
+	}
+	return this;	
+};
+
+ZQuery.prototype.attr=function(name,value){
+	if(arguments.length==2){
+		for(var i=0; i<this.elements.length; i++){
+			this.elements[i].setAttribute(name,value);
+		}
+	}else{
+		if(typeof name=='string'){
+			return this.elements[0].getAttribute(name);
+		}else{
+			for(var i=0; i<this.elements.length; i++){
+				for(var j in name){
+					this.elements[i].setAttribute(j,name[j])
+				}
+				
+			}
+		}
+	}
+	return this;
+};
+ZQuery.prototype.html=function(str){
+	if(arguments.length==0){
+		return this.elements[0].innerHTML;
+	}else{
+		for(var i=0; i<this.elements.length; i++){
+			this.elements[i].innerHTML=str;
+		}
+	}
+	return this;
+};
+
+ZQuery.prototype.animate=function(json,options){
+	for(var i=0; i<this.elements.length; i++){
+		startMove(this.elements[i],json,options);
+	}
+	return this;
+};
+
+(function(){
+	var arr='click mousedown mousemove mouseup mouseover mouseout dblclick load scroll resize contextmenu'.split(' ');
+	for(var i=0; i<arr.length; i++){
+		_add(arr[i])
+	}
+	
+	function _add(sEv){
+		ZQuery.prototype[sEv]=function(fn){
+			for(var i=0; i<this.elements.length; i++){
+				addEvent(this.elements[i],sEv,fn);
+			}
+		};	
+	}	
+})();
+
+ZQuery.prototype.mouseenter=function(fn){
+	for(var i=0; i<this.elements.length; i++){
+		addEvent(this.elements[i],'mouseover',function(ev){
+			var from=ev.fromElement || ev.relatedTarget;
+			if(isChild(this,from))return;
+			fn && fn();	
+		});
+	}
+};
+
+ZQuery.prototype.mouseleave=function(fn){
+	for(var i=0; i<this.elements.length; i++){
+		addEvent(this.elements[i],'mouseout',function(ev){
+			var to=ev.toElement || ev.relatedTarget;
+			if(isChild(this,to))return;
+			fn && fn();	
+		});
+	}
+};
+
+ZQuery.prototype.hover=function(fnOver,fnOut){
+	this.mouseenter(fnOver);
+	this.mouseleave(fnOut);
+};
+
+ZQuery.prototype.toggle=function(){
+	var _this=this;
+	var _arg=arguments;
+	for(var i=0; i<this.elements.length; i++){
+		(function(index){
+			addEvent(_this.elements[i],'click',function(ev){
+				var fn=_arg[index%_arg.length];
+				fn.call(this,ev);
+				index++;	
+			});
+		})(0);
+	}
+};
+
+ZQuery.prototype.bind=function(sEv,fn){
+	for(var i=0; i<this.elements.length; i++){
+		addEvent(this.elements[i],sEv,function(ev){
+			fn.call(this,ev);	
+		});
+	}
+};
+
+
+ZQuery.prototype.appendTo=function(str){
+	var aParent=getEle(str);
+	
+	for(var i=0; i<aParent.length; i++){
+		_appendTo(aParent[i],this.domString);
+	}
+};
+
+ZQuery.prototype.remove=function(){
+	for(var i=0; i<this.elements.length; i++){
+		this.elements[i].parentNode.removeChild(this.elements[i]);
+	}
+};
+
+
+ZQuery.prototype.get=function(n){
+	return this.elements[n];	
+};
+
+ZQuery.prototype.eq=function(n){
+	return $(this.elements[n]);
+};
+
+ZQuery.prototype.index=function(){
+	var obj=this.elements[this.elements.length-1];
+	var arr=obj.parentNode.children;
+	
+	for(var i=0; i<arr.length; i++){
+		if(arr[i]==obj){
+			return i;	
+		}
+	}
+};
+
+ZQuery.prototype.removeClass=function(sClass){
+	var reg=new RegExp('\\b'+sClass+'\\b');
+	
+	for(var i=0; i<this.elements.length; i++){
+		if(reg.test(this.elements[i].className)){
+			this.elements[i].className=this.elements[i].className.replace(reg,'');	
+		}
+	}
+};
+
+ZQuery.prototype.addClass=function(sClass){
+	var reg=new RegExp('\\b'+sClass+'\\b');
+	for(var i=0; i<this.elements.length; i++){
+		if(this.elements[i].className){
+			if(!reg.test(this.elements[i].className)){
+				this.elements[i].className+=' '+sClass;	
+			}
+		}else{
+			this.elements[i].className=sClass;	
+		}
+	}
+};
+
+ZQuery.prototype.find=function(str){
+	var arr=getEle(str,this.elements);
+	return $(arr);
+};
+
+$.ajax=function(json){
+	ajax(json);	
+};
+
+$.fn=$.prototype=ZQuery.prototype;
+
+$.fn.extend=function(json){
+	for(var name in json){
+		$.fn[name]=json[name];
+	}
+};
+
+
+
+
+
+
+
+
+
+
+
+function $(arg){
+	return new ZQuery(arg);
+}
+function json2url(json){
+	json.t=Math.random();
+	var arr=[];
+	for(var name in json){
+		arr.push(name+'='+json[name]);
+	}
+	return arr.join('&');
+}
+
+function ajax(json){
+	var timer=null;
+	json=json || {};
+	if(!json.url){
+		alert('用法不符合规范');
+		return;
+	}
+	json.type=json.type || 'get';
+	json.data=json.data || {};
+	json.time=json.time || 3;
+	json.dataType=json.dataType || 'json';
+	
+	if(window.XMLHttpRequest){
+		var oAjax=new XMLHttpRequest();
+	}else{
+		var oAjax=new ActiveXObject('Microsoft.XMLHTTP');	
+	}
+	
+	switch(json.type.toLowerCase()){
+		case 'get':
+			oAjax.open('GET',json.url+'?'+json2url(json.data),true);
+			oAjax.send();
+			break;
+		case 'post':
+			oAjax.open('POST',json.url,true);
+			oAjax.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
+			oAjax.send(json2url(json.data));
+			break;
+	}
+	
+	json.fnLoading && json.fnLoading();
+	
+	oAjax.onreadystatechange=function(){
+		if(oAjax.readyState==4){
+			if((oAjax.status>=200 && oAjax.status<300) || oAjax.status==304){
+				if(json.dataType=='xml'){
+					json.succ && json.succ(oAjax.responseXML);	
+				}else{
+					json.succ && json.succ(oAjax.responseText);
+				}
+				clearTimeout(timer);
+			}else{
+				json.error && json.error(oAjax.status);	
+				clearTimeout(timer);
+			}	
+		}
+	};
+	
+	//网络超时
+	timer=setTimeout(function(){
+		alert('网络不给力');
+		oAjax.onreadystatechange=null;
+	},json.time*1000);
+}
+
+function json2url(json){
+	json.t=Math.random();
+	var arr=[];
+	for(var name in json){
+		arr.push(name+'='+json[name]);
+	}
+	return arr.join('&');
+}
+function ajax(json){
+	var timer=null;
+	json=json || {};
+	if(!json.url){
+		alert('用法不符合规范');
+		return;
+	}
+	json.type=json.type || 'get';
+	json.data=json.data || {};
+	json.time=json.time || 3;
+	json.dataType=json.dataType || 'json';
+	
+	if(window.XMLHttpRequest){
+		var oAjax=new XMLHttpRequest();
+	}else{
+		var oAjax=new ActiveXObject('Microsoft.XMLHTTP');	
+	}
+	
+	switch(json.type.toLowerCase()){
+		case 'get':
+			oAjax.open('GET',json.url+'?'+json2url(json.data),true);
+			oAjax.send();
+			break;
+		case 'post':
+			oAjax.open('POST',json.url,true);
+			oAjax.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
+			oAjax.send(json2url(json.data));
+			break;
+	}
+	
+	json.fnLoading && json.fnLoading();
+	
+	oAjax.onreadystatechange=function(){
+		if(oAjax.readyState==4){
+			if((oAjax.status>=200 && oAjax.status<300) || oAjax.status==304){
+				if(json.dataType=='xml'){
+					json.succ && json.succ(oAjax.responseXML);	
+				}else{
+					json.succ && json.succ(oAjax.responseText);
+				}
+				clearTimeout(timer);
+			}else{
+				json.error && json.error(oAjax.status);	
+				clearTimeout(timer);
+			}	
+		}
+	};
+	
+	//网络超时
+	timer=setTimeout(function(){
+		alert('网络不给力');
+		oAjax.onreadystatechange=null;
+	},json.time*1000);
+}
+
+function _appendTo(oParent,str){
+	var oTmp=document.createElement('tmp');
+	oTmp.innerHTML=str;
+	
+	while(oTmp.children.length){
+		oParent.appendChild(oTmp.children[0]);
+	}
+}
+
+function isChild(oParent,obj){
+	while(obj){
+		if(obj==oParent)return true;
+		obj=obj.parentNode;
+	}
+	return false;
+}
+
+function addEvent(obj,sEv,fn){
+	if(obj.addEventListener){
+		obj.addEventListener(sEv,function(ev){
+			if(fn.call(obj,ev)==false){
+				ev.preventDefault();
+				ev.cancelBubble=true;	
+			}	
+		},false);
+	}else{
+		obj.attachEvent('on'+sEv,function(){
+			if(fn.call(obj,event)==false){
+				event.cancelBubble=true;
+				return false;	
+			}	
+		});
+	}
+}
+
+
+function startMove(obj,json,options){
+	options=options || {};
+	options.time=options.time || 700;
+	options.type=options.type || 'ease-out';
+	
+	clearInterval(obj.timer);
+	var count=Math.floor(options.time/30);
+	
+	var start={};
+	var dis={};
+	
+	for(var name in json){
+		if(name=='opacity'){
+			start[name]=parseFloat(getStyle(obj,name));
+		}else{
+			start[name]=parseInt(getStyle(obj,name));		
+		}
+		dis[name]=json[name]-start[name];
+	}
+	
+	var n=0;
+	
+	obj.timer=setInterval(function(){
+		n++;
+		
+		for(var name in json){
+			switch(options.type){
+				case 'linear':
+					var a=n/count;
+					var cur=start[name]+dis[name]*a;
+					break;
+				case 'ease-in':
+					var a=n/count;
+					var cur=start[name]+dis[name]*Math.pow(a,3);
+					break;
+				case 'ease-out':
+					var a=1-n/count;
+					var cur=start[name]+dis[name]*(1-Math.pow(a,3));
+					break;
+			}
+			
+			if(name=='opacity'){
+				obj.style.opacity=cur;
+				obj.style.filter='alpha(opacity:'+cur*100+')';
+			}else{
+				obj.style[name]=cur+'px';	
+			}
+		}
+		
+		if(n==count){
+			clearInterval(obj.timer);
+			options.end && options.end();	
+		}	
+	},30);
+	
+}
+
+
+function getStyle(obj,name){
+	return obj.currentStyle?obj.currentStyle[name]:getComputedStyle(obj,false)[name];
+}
+
+function domReady(fn){
+	if(document.addEventListener){
+		document.addEventListener('DOMContentLoaded',fn,false);
+	}else{
+		document.attachEvent('onreadystatechange',function(){
+			if(document.readyState=='complete'){
+				fn && fn();	
+			}	
+		});
+	}
+}
+
+function getByClass(oParent,sClass){
+	if(oParent.getElementsByClassName){
+		return oParent.getElementsByClassName(sClass);
+	}else{
+		var arr=[];
+		var reg=new RegExp('\\b'+sClass+'\\b');
+		var aEle=oParent.getElementsByTagName('*');
+		for(var i=0; i<aEle.length; i++){
+			if(reg.test(aEle[i].className)){
+				arr.push(aEle[i]);	
+			}
+		}
+		return arr;	
+	}
+}
+function getStr(aParent,str){
+	var aChild=[];
+	for(var i=0; i<aParent.length; i++){
+		switch(str.charAt(0)){
+			case '#':
+				var obj=document.getElementById(str.substring(1));
+				aChild.push(obj);
+				break;
+			case '.':
+				var arr=getByClass(aParent[i],str.substring(1));
+				for(var j=0; j<arr.length; j++){
+					aChild.push(arr[j]);
+				}
+				break;
+			default:  //不太靠谱  li li.box li:first input[type=button]  li#li1
+				if(/\w+\.\w+/i.test(str)){  //li.red
+					var aStr=str.split('.');
+					var aEle=aParent[i].getElementsByTagName(aStr[0]);
+					for(var j=0; j<aEle.length; j++){
+						if(aEle[j].className==aStr[1]){
+							aChild.push(aEle[j]);	
+						}
+					}
+				}else if(/\w+#\w+/i.test(str)){  //li#li1
+					var aStr=str.split('#');
+					var aEle=aParent[i].getElementsByTagName(aStr[0]);
+					for(var j=0; j<aEle.length; j++){
+						if(aEle[j].id==aStr[1]){
+							aChild.push(aEle[j]);	
+						}
+						
+					}
+				}else if(/\w+\[\w+=\w+\]/i.test(str)){  //input[type=button]
+					var aStr=str.split(/\[|=|\]/);
+					var aEle=aParent[i].getElementsByTagName(aStr[0]);
+					for(var j=0; j<aEle.length; j++){
+						if(aEle[j].getAttribute(aStr[1])==aStr[2]){
+							aChild.push(aEle[j]);	
+						}
+						
+					}
+					
+				}else if(/\w+:\w+(\(\d+\))?/i.test(str)){  //li:first li:odd li:eq(3)
+					var aStr=str.split(/:|\(|\)/g);
+					var aEle=aParent[i].getElementsByTagName(aStr[0]);
+					switch(aStr[1]){
+						case 'first':
+							aChild.push(aEle[0]);
+							break;
+						case 'last':
+							aChild.push(aEle[aEle.length-1]);
+							break;
+						case 'odd':
+							for(var j=1; j<aEle.length; j+=2){
+								aChild.push(aEle[j]);	
+								
+							}
+							break;
+						case 'even':
+							for(var j=0; j<aEle.length; j+=2){
+								aChild.push(aEle[j]);	
+								
+							}
+							break;
+						case 'eq':
+							var n=aStr[2];
+							if(n<0 || n>aEle.length){
+								return aChild;	
+							}
+							aChild.push(aEle[n]);
+							break;
+					}
+				}else{
+					var arr=aParent[i].getElementsByTagName(str);
+					//aChild.concat(arr);
+					for(var j=0; j<arr.length; j++){
+						aChild.push(arr[j]);
+					}	
+				}
+				break;
+		}		
+	}
+	return aChild;
+}
+function getEle(str,aParent){
+	var arr=str.replace(/^\s+|\s+$/g,'').split(/\s+/g);
+	// #div1 ul li input
+	var aParent=aParent || [document];
+	var aChild=[];
+	
+	for(var i=0; i<arr.length; i++){
+		aChild=getStr(aParent,arr[i]);
+		
+		aParent=aChild;
+	}
+	return aChild;
+}
