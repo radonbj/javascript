@@ -21,4 +21,12 @@ var me = {
 foo.call(me,2,3);             //"kyle/23"
 foo.apply(me,[2,3]);          //"kyle/23"
 foo.bind(me,2,3)();           //"kyle/23"
-可以发现bind后面多了一个(),这是因为bind返回的是一个新建的函数，需要我们手动执行。这也就展示出bing和call、apply使用场景的区别。
+可以发现bind后面多了一个(),这是因为bind返回的是一个新建的函数，需要我们手动执行。这也就展示出bing和call、apply使用场景的区别。在call、apply、bind的
+外面再包一层会发现this还是会丢失，如：setTimeout(foo.call(me))会将this指向window在全局找name。这是就需要使出终极武器来解决这个问题：
+function fo(){
+  foo.call(me);
+};
+fo();                     //kyle
+setTimeout(fo,1000);      //kyle
+fo.call(window);          //kyle
+这样给call包一层后绑定this，之后再调用包装函数this就不会再变了。
