@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="format-detection" content="telephone=no">
+	<title>Document</title>
+	<style>
+		body {
+			font-size: 100px;
+			width: 6.4rem;
+			height: 11.36rem;
+			position: relative;			
+		}
+		
+		.pop {
+			display: none;
+			width: 5rem;
+			height: 6rem;
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			margin: -3rem 0 0 -2.5rem;
+		}
+		form{
+			font-size: .26rem;
+		}
+		ul{
+			margin: 0;
+			padding: 0;
+		}
+		li {
+			list-style: none;
+			height: .8rem;
+			width: 100%;
+			margin: .1rem 0;
+		}
+		label{
+			display: inline-block;
+			width: 1rem;
+			height: 100%;
+			font-size: .26rem;
+		}
+		input{
+			width: 3.5rem;
+			height: 100%;
+			border: 1px solid #ddd;
+			font-size: .24rem;
+		}
+		button {
+			width: 1rem;
+			height: .5rem;
+		}
+	</style>
+	<script src="http://qy.iwgame.test/js/jquery.min.js"></script>
+	<script>
+		/*
+				    # 按照宽高比例设定html字体, width=device-width initial-scale=1版
+				    # @pargam win 窗口window对象
+				    # @pargam option{
+				      designWidth: 设计稿宽度，必须
+				      designHeight: 设计稿高度，不传的话则比例按照宽度来计算，可选
+				      designFontSize: 设计稿宽高下用于计算的字体大小，默认20，可选
+				      callback: 字体计算之后的回调函数，可选
+				    }
+				    # return Boolean;
+				    # xiaoweili@tencent.com
+				    # ps:请尽量第一时间运行此js计算字体
+				*/
+		! function (win, option) {
+			var count = 0,
+				designWidth = option.designWidth,
+				designHeight = option.designHeight || 0,
+				designFontSize = option.designFontSize || 20,
+				callback = option.callback || null,
+				root = document.documentElement,
+				body = document.body,
+				rootWidth, newSize, t, self;
+			root.style.width = 100 + '%';
+			//返回root元素字体计算结果
+			function _getNewFontSize() {
+				var scale = designHeight !== 0 ? Math.min(win.innerWidth / designWidth, win.innerHeight / designHeight) : win.innerWidth /
+					designWidth;
+				return parseInt(scale * 10000 * designFontSize) / 10000;
+			}! function () {
+				rootWidth = root.getBoundingClientRect().width;
+				self = self ? self : arguments.callee;
+				//如果此时屏幕宽度不准确，就尝试再次获取分辨率，只尝试20次，否则使用win.innerWidth计算
+				if (rootWidth !== win.innerWidth && count < 20) {
+					win.setTimeout(function () {
+						count++;
+						self();
+					}, 0);
+				} else {
+					newSize = _getNewFontSize();
+					//如果css已经兼容当前分辨率就不管了
+					if (newSize + 'px' !== getComputedStyle(root)['font-size']) {
+						root.style.fontSize = newSize + "px";
+						return callback && callback(newSize);
+					};
+				};
+			}();
+			//横竖屏切换的时候改变fontSize，根据需要选择使用
+			win.addEventListener("onorientationchange" in window ? "orientationchange" : "resize", function () {
+				clearTimeout(t);
+				t = setTimeout(function () {
+					self();
+				}, 300);
+			}, false);
+		}(window, {
+			designWidth: 640,
+			designHeight: 1136,
+			designFontSize: 100,
+			callback: function (argument) {
+				console.timeEnd("test")
+			}
+		});
+
+
+		// 检测键盘弹起的一系列状态
+		var changeKeyboard = (function () {
+			var clearMonitor, monitorWindowHeight, containerId, btnGroupId,
+				isFocus = false,
+				blurHandle, init, winHeight = window.innerHeight;
+
+			// input获取焦点, 检测可视化高度
+			init = function (target) {
+
+				if (target.dataset.code !== "key") return;
+				btnGroupId = $("#homeMoreBtn");
+				btnGroupId.addClass("hide");
+
+				setTimeout(function () {
+					var newTop = 0;
+					!isFocus && monitorWindowHeight();
+					isFocus = true;
+
+					containerId = document.querySelector("#container");//弹层盒子
+					if (!containerId) return;
+					containerId.style.height = window.innerHeight + "px";
+					newTop = target.getBoundingClientRect().top + containerId.scrollTop;
+					containerId.scrollTop = newTop - window.innerHeight + 40;					
+				}, 500);
+			};
+
+			// 让当前获取焦点的元素失焦
+			blurHandle = function () {
+				var el = document.activeElement;
+				$(el).blur();
+			};
+
+			// 监听window高度的变化
+			monitorWindowHeight = function () {
+				clearMonitor = setInterval(function () {
+					var heightStr, wh = window.innerHeight;
+					if (winHeight == wh) {
+						heightStr = (tools.h - 50) + "px";
+						btnGroupId && btnGroupId.removeClass("hide");
+						clearInterval(clearMonitor);
+						blurHandle();
+						isFocus = false;
+					} else {
+						heightStr = wh + "px";
+					}
+					containerId && (containerId.style.height = heightStr);					
+				}, 500);
+			};
+
+			return {
+				blurHandle: blurHandle,
+				init: init
+			}
+		})();
+
+
+		// 监听touchstart事件, 判断来源是否input, 做对应的处理
+		var blurOut = 0;
+		$("body").on("touchstart", function (e) {
+
+			if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") {
+				App.IS_ANDROID && changeKeyboard.init(e.target);
+				blurOut && clearTimeout(blurOut);
+			} else {
+				changeKeyboard.blurHandle();
+			}
+
+		});
+
+		$(function () {
+			$('button').on('touchstart', function () {
+				$('.pop').show();			
+			});
+		});
+	</script>
+</head>
+
+<body>
+	<button>显示</button>
+	<div class="pop" id="#container">
+		<form>
+			<ul>
+				<li>
+					<label>1</label>
+					<input />
+				</li>
+				<li>
+					<label>2</label>
+					<input />
+				</li>
+				<li>
+					<label>3</label>
+					<input />
+				</li>
+				<li>
+					<label>4</label>
+					<input />
+				</li>
+				<li>
+					<label>5</label>
+					<input />
+				</li>
+				<li>
+					<label>6</label>
+					<input />
+				</li>
+			</ul>
+		</form>
+	</div>
+</body>
+
+</html>
