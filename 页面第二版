@@ -1,0 +1,108 @@
+ var Page = {
+        ID: null,
+        current_page: 1,
+        pageCount: 1,
+        callBack: function() {},
+        _this: null,
+        init: function(msg) {
+            this.ID = msg.ID || this.ID;
+            this.current_page = msg.current_page || this.current_page;
+            this.pageCount = msg.pageCount || this.pageCount;
+            this.domtext = [];
+            this.callBack = msg.callBack || this.callBack;
+            if (this.current_page > 3 && this.pageCount > 5) {
+                this.domtext.push('<li>首页</li>');
+            }
+            if (this.current_page > 1 && this.pageCount > 1) {
+                this.domtext.push('<li>上一页</li>');
+            }
+            if (this.pageCount <= 5) {
+                for (var i = 1; i <= this.pageCount; i++) {
+                    if (i == this.current_page) {
+                        this.domtext.push('<li>' + i + '</li>');
+                    } else {
+                        this.domtext.push('<li>[' + i + ']</li>');
+                    }
+                }
+            } else {
+                for (var i = 1; i <= 5; i++) {
+                    if (this.current_page == 1 || this.current_page == 2) {
+                        if (i == this.current_page) {
+                            this.domtext.push('<li>' + i + '</li>');
+                        } else {
+                            this.domtext.push('<li>[' + i + ']</li>');
+                        }
+                    } else if (this.pageCount - this.current_page == 0 || this.pageCount - this.current_page == 1) {
+                        if (this.pageCount - this.current_page == 0 && i == 5) {
+                            this.domtext.push('<li>' + parseInt(this.pageCount - 5 + i) + '</li>');
+                        } else if (this.pageCount - this.current_page == 1 && i == 4) {
+                            this.domtext.push('<li>' + parseInt(this.pageCount - 5 + i) + '</li>');
+                        } else {
+                            this.domtext.push('<li>[' + parseInt(this.pageCount - 5 + i) + ']</li>');
+                        }
+                    } else {
+                        if (i == 3) {
+                            this.domtext.push('<li>' + parseInt(this.current_page - 3 + i) + '</li>');
+                        } else {
+                            this.domtext.push('<li>[' + parseInt(this.current_page - 3 + i) + ']</li>');
+                        }
+                    }
+                }
+            }
+            if (this.pageCount - this.current_page > 0 && this.pageCount > 1) {
+                this.domtext.push('<li>下一页</li>');
+            }
+            if (this.pageCount - this.current_page > 2 && this.pageCount > 5) {
+                this.domtext.push('<li>尾页</li>');
+            }
+            $(this.ID).append(this.domtext.join(''));
+            this.ID && this.clickFn();
+        },
+        clickFn: function() {
+            var _this = this;
+            $(this.ID).children('li').on('click', function() {
+                if ($(this).text() == '上一页') {
+                    _this.current_page--;
+                } else if ($(this).text() == '下一页') {
+                    _this.current_page++;
+                } else if ($(this).text() == '首页') {
+                    _this.current_page = 1;
+                } else if ($(this).text() == '尾页') {
+                    _this.current_page = _this.pageCount;
+                } else {
+                    if (/(\d+)/.test($(this).text())) {
+                        var pagenum = RegExp.$1;
+                        if (pagenum < 0 && pagenum > _this.pageCount) {
+                            return false;
+                        } else {
+                            _this.current_page = pagenum;
+                        }
+                    } else {
+                        return false;
+                    }
+                }
+                $(_this.ID).html(' ');
+                _this.init({
+                    ID: _this.ID,
+                    current_page: _this.current_page,
+                    pageCount: _this.pageCount,
+                    callBack: _this.callBack
+                });
+                _this.callBack(_this.current_page, _this.pageCount);
+            });
+        }
+    };
+
+    var pageFn = Object.create(Page);
+    pageFn.init({
+        ID: '.page',
+        //目标元素
+        current_page: 1,
+        //当前页
+        pageCount: 10,
+        //总页数
+        callBack: function(current_page, pageCount) {
+            //回调函数
+            alert(current_page + "," + pageCount);
+        }
+    });
