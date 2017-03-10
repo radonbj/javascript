@@ -5,17 +5,17 @@ function ajax(json){
 		alert('用法不符合规范');
 		return;
 	}
-	json.type=json.type || 'get';
-	json.data=json.data || {};
-	json.time=json.time || 3;
-	json.dataType=json.dataType || 'json';
-	
+	json.type=json.type || 'get';      //请求方式
+	json.data=json.data || {};         //需要提交的数据
+	json.time=json.time || 3;	   //网络请求的最长允许时间
+	json.dataType=json.dataType || 'json';  //需要返回的数据格式	
+	//创建请求
 	if(window.XMLHttpRequest){
 		var oAjax=new XMLHttpRequest();
 	}else{
 		var oAjax=new ActiveXObject('Microsoft.XMLHTTP');	
 	}
-	
+	//发起get/post请求	
 	switch(json.type.toLowerCase()){
 		case 'get':
 			oAjax.open('GET',json.url+'?'+json2url(json.data),true);
