@@ -1,0 +1,49 @@
+1、array
+function isArray(val){
+  return Object.prototype.toString.call(val)=='[object Array]';
+}
+
+2、null
+function isNull(val){
+  return Object.prototype.toString.call(val)=='[object Null]';
+}
+
+3、undefined
+function isUndefined(val){
+  return Object.prototype.toString.call(val)=='[object Undefined]';
+}
+
+4、strong
+function isStrong(val){
+  return Object.prototype.toString.call(val)=='[object String]';
+}
+
+5、boolean
+function isBoolean(val){
+  return Object.prototype.toString.call(val)=='[object Boolean]';
+}
+
+6、number
+function isNumber(val){
+  return Object.prototype.toString.call(val)=='[object Number]';
+}
+
+7、object
+function isobject(val){
+  return Object.prototype.toString.call(val)=='[object Object]';
+}
+
+8、function
+function isFunction(val){
+  return Object.prototype.toString.call(val)=='[object Function]';
+}
+
+9、RegExp
+function isRegExp(val){
+  return Object.prototype.toString.call(val)=='[object RegExp]';
+}
+
+10、Date
+function isRegExp(val){
+  return Object.prototype.toString.call(val)=='[object Date]';
+}
