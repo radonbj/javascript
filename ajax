@@ -52,3 +52,12 @@ function ajax(json){
 		oAjax.onreadystatechange=null;
 	},json.time*1000);
 }
+
+function json2url(json){
+    json.t=Math.random();
+    var arr=[];
+    for(var name in json){
+        arr.push(name+'='+json[name]);
+    }
+    return arr.join('&');
+}
