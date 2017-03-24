@@ -47,3 +47,20 @@ function isRegExp(val){
 function isRegExp(val){
   return Object.prototype.toString.call(val)=='[object Date]';
 }
+
+升级版
+
+function getType(){
+
+    var value = arguments[0],
+        type = function(){
+            return /\w+\s(\w+)\(\)\s.+?/.test(value.constructor.toString()) ? RegExp.$1.toLowerCase() : 'arguments except'; 
+        };
+
+    if(typeof value){
+        return value !== null ?  value !== undefined ? type() : 'undefined' :  'null';
+    }else{
+        return 'undefined';
+    }
+
+}
