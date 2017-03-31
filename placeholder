@@ -1,0 +1,57 @@
+//兼容IE6的表单控件提示文字
+var Utils = {
+    isIe: !!window.ActiveXObject || 'ActiveXObject' in window,
+    isPlaceholder: 'placeholder' in document.createElement('input'),
+    initPlaceholder: function($input,msg,json){
+        if(this.isPlaceholder && !this.isIe){
+            $input.attr('placeholder',msg);
+        }else{
+            var obj = eval(json);
+            if(!($input.parent().css("position") == 'relative' || $input.parent().css("position") == 'absolute')){
+               $input.parent().css("position","relative");//父元素设置相对定位
+            }
+            $input.removeAttr('placeholder');
+            var $tip = $('<span></span>');
+            if($input.is(':hidden')){
+                $tip.hide();
+            }
+            $tip.css("position","absolute");
+            $tip.css("left",obj.left+'px');
+            $tip.css("top",obj.top+'px');
+            $tip.css("color",obj.color);
+            $tip.text(msg);
+            $input.after($tip);
+            $.data($input[0],'tip',$tip);
+            if($input.val() != ''){
+                this.hidePHTip($input);
+            }
+            this.dealPHTip($input,$tip);
+        }
+    },
+    hidePHTip: function($input){
+        var $tip = $.data($input[0],'tip');
+        if($tip){
+            $tip.hide();
+        }
+    },
+    dealPHTip: function($input,$tip){
+        var _deal = function(){
+            var val = $input.val();
+            if(val == ''){
+                $tip.show();
+            }else{
+                $tip.hide();
+            }
+        };
+        $tip.click(function(){
+            $input.focus();
+        });
+        $input.bind('input propertychange',function(){
+            clearTimeout(timeout);
+            var timeout = setTimeout(_deal,0);
+        });
+    }
+}
+Utils.initPlaceholder($('.phonenumber'),'手机号',{top:'8',left:'10',color:'#6f8092'});
+Utils.initPlaceholder($('.id-card'),'身份证',{top:'8',left:'10',color:'#6f8092'});
+Utils.initPlaceholder($('.qq'),'QQ号',{top:'8',left:'10',color:'#6f8092'});
