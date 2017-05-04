@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8"/>
+	<title>callback</title>
+</head>
+<body>
+	
+</body>
+</html>
+<script>
+function getUrl(para){
+	var paraArr = location.search.substring(1).split('&');
+	for(var i = 0;i < paraArr.length;i++){
+		if(para == paraArr[i].split('=')[0]){
+			return paraArr[i].split('=')[1];
+		}
+	}
+	return '';
+}
+window.onload = function(){
+	var _accid = getUrl('accid');
+	var _sign = getUrl('sign');
+	var _uname = getUrl('uname');
+	window.parent.regCallBack(_accid, _sign,_uname);
+}
+</script>

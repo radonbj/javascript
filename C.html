@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+    <iframe src="http://hd.tzj.iwgame.test/special/test01/A.html" name="A" frameborder="0" width="100%"></iframe>
+    <script>
+     function get_iframw_height(elem){
+            if(elem.attachEvent){
+                return elem.contenWindow.document.documentElement.scrollHeight;
+            }else{
+                return elem.contentDocument.body.scrollHeight;
+            }
+        }
+        var form = document.getElementsByTagName('iframe');
+        function get_height(num){
+            form[0].style.height = num +'px';
+        }
+    </script>
+</body>
+</html>
