@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+
+<body>
+	<script>
+		var str = "服务器已经成功处理了部分GET请求。类似于FlashGet或者迅雷这类的HTTP下载工具都是使用此类响应实现断点续传或者将一个大文档分解为多个下载段同时下载。该请求必须包含Range头信息来指示客户端希望得到的内容范围，并且可能包含 If-Range 来作为请求条件。响应必须包含如下的头部域：Content-Range用以指示本次响应中返回的内容的范围；如果是Content-Type为multipart/byteranges 的多段下载，则每一multipart段中都应包含Content-Range域用以指示本段的内容范围。假如响应中包含 Content-Length，那么它的数值必须匹配它返回的内容范围的真实字节数。DateETag和/或Content-Location，假如同样的请求本应该返回200响应。Expires, Cache-Control，和/或Vary，假如其值可能与之前相同变量的其他响应对应的值不同的话。假如本响应请求使用了If-Range强缓存验证，那么本次响应不应该包含其他实体头；假如本响应的请求使用了If-Range 弱缓存验证，那么本次响应禁止包含其他实体头；这避免了缓存的实体内容和更新了的实体头信息之间的不一致。否则，本响应就应当包含所有本应该返回200响应中应当返回的所有实体头部域。假如ETag或Last-Modified头部不能精确匹配的话，则客户端缓存应禁止将206响应返回的内容与之前任何缓存过的内容组合在一起。任何不支持Range以及Content-Range头的缓存都禁止缓存206响应返回的内容。";
+		
+
+		function strNum(str) {
+			var data = {},
+				 char = '';
+			for (var i = 0, length = str.length; i < length; i++) {
+				 char = str.charAt(i);
+				if (data[char]) {
+					data[char]++; //次数加1
+				} else {
+					data[char] = 1; //若第一次出现，次数记为1
+				}
+			}
+		
+			//遍历对象，找到出现次数最多的字符的次数和字符
+			var max = {'num':0,'name':''};
+			for (var key in data) {
+				if (max.num < data[key]) {
+					max = {'num':data[key],'name':key};
+				}
+			}
+			return max;
+		};
+		strNum(str);
+	</script>
+</body>
+
+</html>

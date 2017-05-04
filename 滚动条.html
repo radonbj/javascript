@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+		.div1 {
+			width: 500px;
+			height: 300px;
+			margin: 0 auto;
+			overflow: hidden;
+			border: 1px solid rgb(18, 18, 18);
+		}
+		
+		.div2 {
+			width: 470px;
+			display: inline-block;
+			float: left;
+		}
+		
+		.div3 {
+			width: 20px;
+			height: 300px;
+			display: inline-block;
+			position: relative;
+			top: 0;
+			left: 0;
+			background: #289f9f;
+			float: right;
+		}
+		
+		.div4 {
+			width: 18px;
+			border: 1px solid #666;
+			background: #ccc;
+			height: 30px;
+			display: inline-block;
+			position: absolute;
+			top: 0;
+			left: 0;
+		}
+	</style>
+</head>
+
+<body>
+<div class="box" id="box">
+	<div class="center">
+		版权归作者所有，任何形式转载请联系作者。 作者：Lemon（来自豆瓣） 来源：https://www.douban.com/note/609813476/ 公寓是一厅三室，我的房间是最小的那一间，可是房间里却摆了一张硕大的双人床。中介小哥说房东不让乱动家具，所以没法帮我换成单人床。我只好把不常穿的衣服叠好，堆到双人床靠墙的那一侧，节省下衣柜的一部分空间放鞋子和杂物。房间里只有一张电脑桌，没有地方放书架，我就找了一个纸箱立在墙角，把书一本本摆进去码好，书脊露在外面，看上去也像是一个简易小书柜了。洗手间和厨房是几户人共用的，洗手间的地上永远都是清理不干净的头发，厨房洗碗池里永远都堆着没刷干净的碗。 我毕业前一直住在家里，拥有一间自己的小卧室，墙壁是粉色的，窗帘是粉色的，床垫软软的，枕头旁堆着毛茸茸的玩具。床边有一个白色的小书架，书架上除了书，还摆着穿蕾丝裙的洋娃娃。我妈觉得女孩子就应该喜欢粉色，女孩子的床就应该是软乎乎毛茸茸的。我妈还觉得，她进我房间是不需要敲门的，我在屋子做什么也不应该关门。
+	</div>
+	<div class="sidebar">
+		<div class="handle"></div>
+	</div>
+</div>
+	<script src="jquery-1.7.2.js"></script>
+	<script>
+        var EventUtil = {
+
+            addEvent: function (element, type, handler) { //添加事件
+                if (element.addEventListener) {
+                    element.addEventListener(type, handler, false); //使用DOM2级方法添加事件
+                } else if (element.attachEvent) { //使用IE方法添加事件
+                    element.attachEvent("on" + type, handler);
+                } else {
+                    element["on" + type] = handler; //使用DOM0级方法添加事件
+                }
+            },
+
+            removeEvent: function (element, type, handler) { //取消事件
+                if (element.removeEventListener) {
+                    element.removeEventListener(type, handler, false);
+                } else if (element.detachEvent) {
+                    element.detachEvent("on" + type, handler);
+                } else {
+                    element["on" + type] = null;
+                }
+            },
+
+            getEvent: function (event) { //使用这个方法跨浏览器取得event对象
+                return event ? event : window.event;
+            },
+
+            getTarget: function (event) { //返回事件的实际目标
+                return event.target || event.srcElement;
+            },
+
+            preventDefault: function (event) { //阻止事件的默认行为
+                if (event.preventDefault) {
+                    event.preventDefault();
+                } else {
+                    event.returnValue = false;
+                }
+            },
+
+            stopPropagation: function (event) { //立即停止事件在DOM中的传播
+                //避免触发注册在document.body上面的事件处理程序
+                if (event.stopPropagation) {
+                    event.stopPropagation();
+                } else {
+                    event.cancelBubble = true;
+                }
+            },
+
+            getRelatedTarget: function (event) { //获取mouseover和mouseout相关元素
+                if (event.relatedTarget) {
+                    return event.relatedTarget;
+                } else if (event.toElement) { //兼容IE8-
+                    return event.toElement;
+                } else if (event.formElement) {
+                    return event.formElement;
+                } else {
+                    return null;
+                }
+            },
+
+            getButton: function (event) { //获取mousedown或mouseup按下或释放的按钮是鼠标中的哪一个
+                if (document.implementation.hasFeature("MouseEvents", "2.0")) {
+                    return event.button;
+                } else {
+                    switch (event.button) { //将IE模型下的button属性映射为DOM模型下的button属性
+                        case 0:
+                        case 1:
+                        case 3:
+                        case 5:
+                        case 7:
+                            return 0; //按下的是鼠标主按钮（一般是左键）
+                        case 2:
+                        case 6:
+                            return 2; //按下的是中间的鼠标按钮
+                        case 4:
+                            return 1; //鼠标次按钮（一般是右键）
+                    }
+                }
+            },
+
+            getWheelDelta: function (event, fn) { //获取表示鼠标滚轮滚动方向的数值
+                if (event.wheelDelta) {
+                    return event.wheelDelta;
+                } else {
+                    return -event.detail * 40;
+                }
+            },
+
+            getCharCode: function (event) { //以跨浏览器取得相同的字符编码，需在keypress事件中使用
+                if (typeof event.charCode == "number") {
+                    return event.charCode;
+                } else {
+                    return event.keyCode;
+                }
+            },
+
+            entrustEvent: function (btn, elem, event, fn) {
+                function box(e) {
+                    var e = EventUtil.getEvent(e),
+                        target = e.srcElement || e.target;
+                    if (target.tagName.toLowerCase() == elem) {
+                        fn && fn(target);
+                    }
+                }
+                EventUtil.addEvent(btn, event, box);
+            }
+        };
+
+        function getStyle(obj, name) {
+            return obj.currentStyle ? obj.currentStyle[name] : getComputedStyle(obj, false)[name];
+        };
+
+        function getByClass(oParent, sClass) {
+            if (arguments.length == 1) {
+                var sClass = oParent,
+                    oParent = document;
+            } else if (arguments.length == 0) {
+                return false;
+            }
+            if (oParent.getElementsByClassName) {
+                return oParent.getElementsByClassName(sClass);
+            } else {
+                var arr = [];
+                var reg = new RegExp('\\b' + sClass + '\\b');
+                var aEle = oParent.getElementsByTagName('*');
+                for (var i = 0; i < aEle.length; i++) {
+                    if (reg.test(aEle[i].className)) {
+                        arr.push(aEle[i]);
+                    }
+                }
+                return arr;
+            }
+
+        };
+
+
+        if (typeof Object.create != 'function') {
+            // Production steps of ECMA-262, Edition 5, 15.2.3.5
+            // Reference: http://es5.github.io/#x15.2.3.5
+            Object.create = (function() {
+                //为了节省内存，使用一个共享的构造器
+                function Temp() {}
+
+                // 使用 Object.prototype.hasOwnProperty 更安全的引用
+                var hasOwn = Object.prototype.hasOwnProperty;
+
+                return function (O) {
+                    // 1. 如果 O 不是 Object 或 null，抛出一个 TypeError 异常。
+                    if (typeof O != 'object') {
+                        throw TypeError('Object prototype may only be an Object or null');
+                    }
+
+                    // 2. 使创建的一个新的对象为 obj ，就和通过
+                    //    new Object() 表达式创建一个新对象一样，
+                    //    Object是标准内置的构造器名
+                    // 3. 设置 obj 的内部属性 [[Prototype]] 为 O。
+                    Temp.prototype = O;
+                    var obj = new Temp();
+                    Temp.prototype = null; // 不要保持一个 O 的杂散引用（a stray reference）...
+
+                    // 4. 如果存在参数 Properties ，而不是 undefined ，
+                    //    那么就把参数的自身属性添加到 obj 上，就像调用
+                    //    携带obj ，Properties两个参数的标准内置函数
+                    //    Object.defineProperties() 一样。
+                    if (arguments.length > 1) {
+                        // Object.defineProperties does ToObject on its first argument.
+                        var Properties = Object(arguments[1]);
+                        for (var prop in Properties) {
+                            if (hasOwn.call(Properties, prop)) {
+                                obj[prop] = Properties[prop];
+                            }
+                        }
+                    }
+
+                    // 5. 返回 obj
+                    return obj;
+                };
+            })();
+        }
+
+
+
+
+
+
+
+
+
+
+        var Srcoll = {
+            width: 300, //外层宽
+            height: 300, //外层高
+            center_width: 290, //内容区宽
+            sidebar_width: 10, //滚动条宽
+            start_top: 0, //滚动条初始位置
+            move_Y: 0, //滚动条当前位置
+            center_seat: 0, //内容区当前位置
+            drag_height: 0, //滚动条高度
+            center_height: 0, //内容区高度
+            drag_css: "", //滚动条样式
+            box_css: "", //外层盒子样式
+            drag_box_css: "", //滚动条外层样式
+            center_css: "", //内容区样式
+            roll_speed: 2,	//滚轮滚动速度
+            //初始化
+            Init: function (msg) {
+                this.width = msg.width || this.width;
+                this.height = msg.height || this.height;
+                this.center_width = msg.center_width || this.center_width;
+                this.sidebar_width = msg.sidebar_width || this.sidebar_width;
+                this.drag_css = msg.drag_css;
+                this.box_css = msg.box_css;
+                this.drag_box_css = msg.drag_box_css;
+                this.center_css = msg.center_css;
+                this.roll_speed = msg.roll_speed;
+
+                getByClass('box')[0].style.cssText += ";width:" + this.width + "px;height:" + this.height + "px;background:rgba(1,1,1,.3);overflow:hidden;" + this.box_css+";"; //设置外层盒子样式
+                getByClass(getByClass('box')[0], 'center')[0].style.cssText += ";width:" + this.center_width + "px;float:left;overflow:hidden;" + this.center_css; //设置内容区样式
+                getByClass(getByClass('box')[0], 'sidebar')[0].style.cssText += ";width:" + this.sidebar_width + "px;height:100%;float:left;background:rgba(255,255,255,.8);position:relative;" + this.drag_box_css+";"; //设置滚动条外层样式
+                getByClass(getByClass('box')[0], 'handle')[0].style.cssText += ";width:100%;height:" + this.height * this.height / getByClass(getByClass('box')[0], 'center')[0].offsetHeight + "px;background:rgba(1,1,1,.8);position:absolute;" + this.drag_css+";"; //设置滚动条样式
+                this.center_height = getByClass(getByClass('box')[0], 'center')[0].offsetHeight, //内容区高度
+                    this.drag_height = getByClass(getByClass('box')[0], 'handle')[0].offsetHeight; //滚动条高度
+
+                //如果内容区高度小于等于外层盒子高度
+                if (this.center_height <= this.height) {
+                    getByClass('box')[0].removeChild(getByClass(getByClass('box')[0], 'sidebar')[0]);
+                    this.center_width = this.width;
+                    return false;
+                }
+
+                this.Drag && this.Drag();
+                this.Roll && this.Roll();
+            },
+            //滚动条拖拽
+            Drag: function () {
+                var _this = this;
+                EventUtil.addEvent(getByClass(getByClass('box')[0], 'handle')[0], 'mousedown', aaa);
+
+                function aaa(e) {
+                    var e = e || window.Event;
+                    _this.top = e.clientY - this.offsetTop;
+                    EventUtil.addEvent(document, 'mousemove', bbb);
+                };
+
+                function bbb(e) {
+                    var e = e || window.Event;
+                    _this.move_Y = e.clientY - _this.top;
+
+                    _this.Move(_this.move_Y);
+                    EventUtil.preventDefault(e);
+                    EventUtil.addEvent(document, 'mouseup', ccc);
+                };
+
+                function ccc(e) {
+                    EventUtil.removeEvent(getByClass(getByClass('box')[0], 'handle')[0], 'click', aaa);
+                    EventUtil.removeEvent(document, 'mousemove', bbb);
+                    EventUtil.removeEvent(document, 'mouseup', ccc);
+                };
+            },
+            //内容区滚动
+            Roll: function () {
+                var _this = this;
+                //鼠标移入盒子开启滚轮事件
+                EventUtil.addEvent(getByClass('box')[0], 'mouseover', function (e) {
+
+                    EventUtil.addEvent(document, 'mousewheel', handleMouseWheel);
+                    EventUtil.addEvent(document, 'DOMMouseScroll', handleMouseWheel);
+
+                });
+                //鼠标移出盒子滚逼滚轮事件
+                EventUtil.addEvent(getByClass('box')[0], 'mouseout', function (e) {
+
+                    EventUtil.removeEvent(document, 'mousewheel', handleMouseWheel);
+                    EventUtil.removeEvent(document, 'DOMMouseScroll', handleMouseWheel);
+
+                });
+
+                function handleMouseWheel(e) {
+                    var e = EventUtil.getEvent(e),
+                        delta = EventUtil.getWheelDelta(e);
+                    if (delta > 0) {
+                        _this.move_Y+=_this.roll_speed;
+                    } else {
+                        _this.move_Y+=-_this.roll_speed;
+                    }
+                    _this.Move(_this.move_Y);
+                    console.log(_this.move_Y,delta);
+                };
+            },
+            //位置计算
+            Move: function (position) {
+                var _this = this,
+                    position = position;
+
+                position < 0 ? position = 0 : position = position;
+                position > _this.height - getByClass(getByClass('box')[0], 'handle')[0].offsetHeight ? position = _this.height - getByClass(getByClass('box')[0], 'handle')[0].offsetHeight : position = position;
+
+                _this.move_Y = position;
+                _this.center_seat = _this.move_Y / (_this.height - _this.drag_height) * (_this.center_height - _this.height);
+
+                getByClass(getByClass('box')[0], 'handle')[0].style.cssText += "top:" + _this.move_Y + "px";
+                getByClass(getByClass('box')[0], 'center')[0].style.cssText += "margin-top:" + -_this.center_seat + "px";
+            }
+        };
+
+        var ScrollFn = Object.create(Srcoll);
+        ScrollFn.Init({
+            width: 300, //外层宽
+            height: 300, //外层高
+            center_width: 290, //内容区宽
+            sidebar_width: 10, //滚动条宽
+            drag_css: "background:#ddd", //滚动条样式
+            box_css: "border:1px solid #666", //外层盒子样式
+            drag_box_css: "background:#333", //滚动条外层样式
+            center_css: "", //内容区样式
+            roll_speed: 2
+        });
+	</script>
+</body>
+
+</html>

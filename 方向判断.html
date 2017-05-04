@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+        ul {
+            margin: 0;
+        }
+        
+        li {
+            padding: 0;
+            list-style: none;
+            margin: 10px;
+            float: left;
+        }
+        
+        .box {
+            width: 599px;
+            height: 399px;
+            background: url(list2.jpg) no-repeat;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .inner {
+            width: 100%;
+            height: 100%;
+            background: rgba(1, 1, 1, .3);
+            position: absolute;
+            top: 0;
+            left: -100%;
+            /*transition: left,top 700ms;*/
+        }
+    </style>
+</head>
+
+<body>
+    <ul>
+        <li>
+            <div>
+                <div class="box">
+                    <div class="inner"></div>
+                </div>
+            </div>
+        </li>
+        <li>
+            <div>
+                <div class="box">
+                    <div class="inner"></div>
+                </div>
+            </div>
+        </li>
+        <li>
+            <div>
+                <div class="box">
+                    <div class="inner"></div>
+                </div>
+            </div>
+        </li>
+        <li>
+            <div>
+                <div class="box">
+                    <div class="inner"></div>
+                </div>
+            </div>
+        </li>
+        <li>
+            <div>
+                <div class="box">
+                    <div class="inner"></div>
+                </div>
+            </div>
+        </li>
+    </ul>
+
+    <script src="jquery-1.7.2.js"></script>
+    <script>
+        /*function direction(elem) {
+            var w = elem.width(),
+                h = elem.height(),
+                inner = elem.find('.inner'),
+                halfW = w / 2,
+                halfH = h / 2,
+                t = 0,
+                l = 0,
+                angle = 0,
+                flag = '';
+            elem.on('mouseenter mouseleave', function(e) {
+                var e = e || window.event;
+                l = e.offsetX;
+                t = e.offsetY;
+                angle = Math.atan((l - halfW) / (t - halfH)) * 180 / Math.PI;
+
+                if (angle > -45 && angle < 45 && t > halfH) flag = 'down';
+                if (angle > -45 && angle < 45 && t < halfH) flag = 'top';
+                if (((angle > -90 && angle < -45) || (angle > 45 && angle < 90)) && l > halfW) flag = 'right';
+                if (((angle > -90 && angle < -45) || (angle > 45 && angle < 90)) && l < halfW) flag = 'left';               
+                move(e.type, flag);
+            });
+
+            function move(eventType, flag) {
+                if (eventType == 'mouseenter') {
+                    switch (flag) {
+                        case 'top':
+                            inner.css({
+                                'top': -h,
+                                'left': 0
+                            }).stop(true, true).animate({
+                                'top': 0
+                            }, 'show');
+                            break;
+                        case 'down':
+                            inner.css({
+                                'top': h,
+                                'left': 0
+                            }).stop(true, true).animate({
+                                'top': 0
+                            }, 'show');
+                            break;
+                        case 'right':
+                            inner.css({
+                                'top': 0,
+                                'left': w
+                            }).stop(true, true).animate({
+                                'left': 0
+                            }, 'show');
+                            break;
+                        case 'left':
+                            inner.css({
+                                'top': 0,
+                                'left': -w
+                            }).stop(true, true).animate({
+                                'left': 0
+                            }, 'show');
+                            break;
+                    }
+                } else {
+                    switch (flag) {
+                        case 'top':
+                            inner.stop(true, true).animate({
+                                'top': -h
+                            }, 'show');
+                            break;
+                        case 'down':
+                            inner.stop(true, true).animate({
+                                'top': h
+                            }, 'show');
+                            break;
+                        case 'right':
+                            inner.stop(true, true).animate({
+                                'left': w
+                            }, 'show');
+                            break;
+                        case 'left':
+                            inner.stop(true, true).animate({
+                                'left': -w
+                            }, 'show');
+                            break;
+                    }
+                }
+            };
+        };
+        $('.box').each(function(i) {
+            direction($(this));
+        }); */
+
+        /*混合模式*/
+        /*function Direction(elem) {
+            this.w = elem.width();
+            this.h = elem.height();
+            this.inner = elem.find('.inner');
+            this.halfW = this.w / 2;
+            this.halfH = this.h / 2;
+            this.t = 0;
+            this.l = 0;
+            this.angle = 0;
+            this.flag = '';
+            this.init.call(this,elem);
+        };
+        Direction.prototype.init = function(elem) {
+            var _this = this;
+            elem.on('mouseenter mouseleave', function(e) {
+                var e = e || window.event;
+                _this.l = e.offsetX;
+                _this.t = e.offsetY;
+                _this.angle = Math.atan((_this.l - _this.halfW) / (_this.t - _this.halfH)) * 180 / Math.PI;
+
+                if (_this.angle > -45 && _this.angle < 45 && _this.t > _this.halfH) _this.flag = 'down';
+                if (_this.angle > -45 && _this.angle < 45 && _this.t < _this.halfH) _this.flag = 'top';
+                if (((_this.angle > -90 && _this.angle < -45) || (_this.angle > 45 && _this.angle < 90)) && _this.l > _this.halfW) _this.flag = 'right';
+                if (((_this.angle > -90 && _this.angle < -45) || (_this.angle > 45 && _this.angle < 90)) && _this.l < _this.halfW) _this.flag = 'left';
+                _this.move.call(_this,e.type, _this.flag);                
+            });
+        };
+        Direction.prototype.move = function(eventType, flag) {
+            var _this = this;
+            if (eventType == 'mouseenter') {
+                switch (flag) {
+                    case 'top':
+                        this.inner.css({
+                            'top': -this.h,
+                            'left': 0
+                        }).stop(true, true).animate({
+                            'top': 0
+                        }, 'show');
+                        break;
+                    case 'down':
+                        this.inner.css({
+                            'top': this.h,
+                            'left': 0
+                        }).stop(true, true).animate({
+                            'top': 0
+                        }, 'show');
+                        break;
+                    case 'right':
+                        this.inner.css({
+                            'top': 0,
+                            'left': this.w
+                        }).stop(true, true).animate({
+                            'left': 0
+                        }, 'show');
+                        break;
+                    case 'left':
+                        this.inner.css({
+                            'top': 0,
+                            'left': -this.w
+                        }).stop(true, true).animate({
+                            'left': 0
+                        }, 'show');
+                        break;
+                }
+            } else {
+                switch (flag) {
+                    case 'top':
+                        this.inner.stop(true, true).animate({
+                            'top': -this.h
+                        }, 'show');
+                        break;
+                    case 'down':
+                        this.inner.stop(true, true).animate({
+                            'top': this.h
+                        }, 'show');
+                        break;
+                    case 'right':
+                        _this.inner.stop(true, true).animate({
+                            'left': this.w
+                        }, 'show');
+                        break;
+                    case 'left':
+                        this.inner.stop(true, true).animate({
+                            'left': -this.w
+                        }, 'show');
+                        break;
+                }
+            }
+        };
+        $(function($) {
+            $('.box').each(function(i) {
+                new Direction($(this));
+            });
+        });*/
+
+        /*字面量方式*/
+        var direction = {
+            w: 0,
+            h: 0,
+            inner: '',
+            halfW: 0,
+            halfH: 0,
+            t: 0,
+            l: 0,
+            angle: 0,
+            flag: '',
+            init: function(elem) {
+                this.w = elem.width();
+                this.h = elem.height();
+                this.inner = elem.find('.inner');
+                this.halfW = this.w / 2;
+                this.halfH = this.h / 2;
+                this.t = 0;
+                this.l = 0;
+                this.angle = 0;
+                this.flag = '';
+                this.directionJudge(elem);
+            },
+            directionJudge: function(elem) {
+                var _this = this;
+                elem.on('mouseenter mouseleave', function(e) {
+                    var e = e || window.event;
+                    _this.l = e.offsetX;
+                    _this.t = e.offsetY;
+                    _this.angle = Math.atan((_this.l - _this.halfW) / (_this.t - _this.halfH)) * 180 / Math.PI;
+
+                    if (_this.angle > -45 && _this.angle < 45 && _this.t > _this.halfH) _this.flag = 'down';
+                    if (_this.angle > -45 && _this.angle < 45 && _this.t < _this.halfH) _this.flag = 'top';
+                    if (((_this.angle > -90 && _this.angle < -45) || (_this.angle > 45 && _this.angle < 90)) && _this.l > _this.halfW) _this.flag = 'right';
+                    if (((_this.angle > -90 && _this.angle < -45) || (_this.angle > 45 && _this.angle < 90)) && _this.l < _this.halfW) _this.flag = 'left';
+                    _this.move(e.type, _this.flag);
+                });
+            },
+            move: function(eventType, flag) {
+                var _this = this;
+                if (eventType == 'mouseenter') {
+                    switch (flag) {
+                        case 'top':
+                            _this.inner.css({
+                                'top': -_this.h,
+                                'left': 0
+                            }).stop(true, true).animate({
+                                'top': 0
+                            }, 'show');
+                            break;
+                        case 'down':
+                            _this.inner.css({
+                                'top': _this.h,
+                                'left': 0
+                            }).stop(true, true).animate({
+                                'top': 0
+                            }, 'show');
+                            break;
+                        case 'right':
+                            _this.inner.css({
+                                'top': 0,
+                                'left': _this.w
+                            }).stop(true, true).animate({
+                                'left': 0
+                            }, 'show');
+                            break;
+                        case 'left':
+                            _this.inner.css({
+                                'top': 0,
+                                'left': -_this.w
+                            }).stop(true, true).animate({
+                                'left': 0
+                            }, 'show');
+                            break;
+                    }
+                } else {
+                    switch (flag) {
+                        case 'top':
+                            _this.inner.stop(true, true).animate({
+                                'top': -_this.h
+                            }, 'show');
+                            break;
+                        case 'down':
+                            _this.inner.stop(true, true).animate({
+                                'top': _this.h
+                            }, 'show');
+                            break;
+                        case 'right':
+                            _this.inner.stop(true, true).animate({
+                                'left': _this.w
+                            }, 'show');
+                            break;
+                        case 'left':
+                            _this.inner.stop(true, true).animate({
+                                'left': -_this.w
+                            }, 'show');
+                            break;
+                    }
+                }
+            }
+        };
+        //var Direction = Object.create(direction);
+        $('.box').each(function(i) {
+            direction.init($(this));
+        });
+        //direction.init($('.box').eq(2));
+    </script>
+</body>
+
+</html>

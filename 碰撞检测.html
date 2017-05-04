@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Document</title>
+<style>
+body{ color:#fff;}
+#div1{ width:100px; height:100px; background:red; position:absolute; left:0; top:0; z-index:2;}
+#div2{ width:100px; height:100px; background:blue; position:absolute; left:300px; top:200px; z-index:1;}
+</style>
+<script>
+window.onload=function(){
+	var oDiv=document.getElementById('div1');
+	var oDiv2=document.getElementById('div2');
+	
+	/*oDiv.onmousedown=function(ev){
+		var oEvent=ev || event;
+		
+		var disX=oEvent.clientX-oDiv.offsetLeft;
+		var disY=oEvent.clientY-oDiv.offsetTop;
+		
+		document.onmousemove=function(ev){
+			var oEvent=ev || event;
+			
+			oDiv.style.left=oEvent.clientX-disX+'px';
+			oDiv.style.top=oEvent.clientY-disY+'px';
+			
+			//检测碰撞
+			if(collTest(oDiv,oDiv2)){
+				oDiv2.style.background='yellow';	
+			}else{
+				oDiv2.style.background='blue';	
+			}	
+		}
+		document.onmouseup=function(){
+			document.onmousemove=null;
+			document.onmouseup=null;	
+			oDiv.releaseCapture && oDiv.releaseCapture();
+		}
+		oDiv.setCapture && oDiv.setCapture();
+		return false;	
+	}*/
+	function backgroundChange(){
+		if(collTest(oDiv,oDiv2)){
+				oDiv2.style.background='yellow';	
+			}else{
+				oDiv2.style.background='blue';	
+			}
+	}
+	drag(oDiv,backgroundChange);
+};
+	
+	function drag(elem,fn){
+			elem.onmousedown=function(ev){
+			var oEvent=ev || event,
+				disX=oEvent.clientX-elem.offsetLeft,
+				disY=oEvent.clientY-elem.offsetTop;
+
+			document.onmousemove=function(ev){
+				var oEvent=ev || event;
+
+				elem.style.left=oEvent.clientX-disX+'px';
+				elem.style.top=oEvent.clientY-disY+'px';
+
+				fn && fn();
+			}
+			document.onmouseup=function(){
+				document.onmousemove=null;
+				document.onmouseup=null;	
+				elem.releaseCapture && elem.releaseCapture();
+			}
+			elem.setCapture && elem.setCapture();
+			return false;	
+		}
+	}
+	
+function collTest(oDiv,oDiv2){
+	var posi = position(oDiv);
+	var posi2 = position(oDiv2);
+	var l1=posi.x;
+	var r1=l1+oDiv.offsetWidth;
+	var t1=posi.y;
+	var b1=t1+oDiv.offsetHeight;
+	
+	var l2=posi2.x;
+	var r2=l2+oDiv2.offsetWidth;
+	var t2=posi2.y;
+	var b2=t2+oDiv2.offsetHeight;
+	
+	//if(r1>l2 && l1<r2 && b1>t2 && t1<b2){
+	if(r1<l2 || l1>r2 || b1<t2 || t1>b2){			
+		return false;
+	}else{
+		return true;	
+	}
+}
+	
+	function position(elem){
+		var x = elem.getBoundingClientRect().left+document.documentElement.scrollLeft,
+		y = elem.getBoundingClientRect().top+document.documentElement.scrollTop;
+		return {x : x ,y : y}
+	}	
+</script>
+</head>
+
+<body>
+<div id="div1">div1</div>
+<div id="div2">div2</div>
+</body>
+</html>

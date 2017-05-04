@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>        
+        var begin = new Date();
+        //为递归求和，性能在普通递归的基础上提高了2/3
+        function sum(num, num1, num2) {
+            if (num <= 1) {
+                var end = new Date();
+                var time = end - begin;
+                console.log("time is=" + time);
+                return num2;
+            } else {
+                return arguments.callee(num - 1, num2, num + num2);
+            }
+        };
+        //普通递归求和
+        function screen(num) {
+            if (num <= 1) {
+                var end = new Date();
+                var time = end - begin;
+                console.log("time is=" + time);
+                return 1;
+            } else {
+                return num + arguments.callee(num - 1);
+            }
+        };
+        //求斐波那契数列
+        function fibonacci(num, num1, num2) {
+            if (num <= 1) {
+                var end = new Date();
+                var time = end - begin;
+                console.log("time is=" + time);
+                return num1;
+            } else {
+                return arguments.callee(num - 1, num2, num1 + num2);
+            }
+        };
+        
+        
+		
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+    <p></p>
+    <script>
+        var p = document.getElementsByTagName('p');
+       if("geolocation" in navigator){
+           navigator.geolocation.getCurrentPosition(position,error,options);//获取地理位置
+           navigator.geolocation.clearWatch(position.error,geo_options);//当位置发生改变后调用
+       }else{
+           alert('地理服务不可用');
+       };
+
+       function position (position){
+               //正常调用
+                console.log('经度:'+position.coords.longitude+';纬度:'+position.coords.latitude+';海拔:'+position.coords.altitude);    
+                var img = new Image();   
+                img.src="https://maps.googleapis.com/maps/api/staticmap?center="+ position.coords.latitude +','+ position.coords.longitude +"&zoom=13&size=1000x1000&sensor=false";
+                document.getElementsByTagName('body')[0].appendChild(img);
+           };
+
+        function error(err){
+               //错误情况
+                console.log('错误代码:'+err.code+';错误原因:'+err.message);
+           };
+
+        var options = {
+               //最长请求时间、精度
+               enableHighAccurac: true,
+               timeout: 5000,
+               maximumAge: 0
+        };
+
+        var geo_options = {
+            enableHighAccurac: true,
+            maximumAge: 5000,
+            timeout: 27000
+        };
+    </script>
+</body>
+</html>

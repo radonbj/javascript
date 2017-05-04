@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+		body{
+			height:1000px;
+		}
+	</style>
+</head>
+<body>
+	<script>
+		document.getElementsByTagName('body')[0].onclick=function(e){
+			var event = event || window.event,
+				clienY = event.clientY,
+				pageY = event.pageY,
+				screenY = event.screenY,
+				pageYOffset = (window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop,
+				Y = event.y;
+			console.log(clienY,pageY,screenY,pageYOffset,Y);
+		};
+	</script>
+</body>
+</html>

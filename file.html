@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>    
+</head>
+
+<body>
+    <p style="height: 300px;width: 300px;background: #ccc;">
+    	<img src="" />
+    </p>
+    <input type="file" multiple />
+    <script type="text/javascript" src="jquery.js" charset="UTF-8"></script>
+    <script charset="UTF-8">
+    var File = {
+        fileSize: 0, //文件大小
+        fileName: [], //文件名字
+        fileType: [], //文件类型
+        fileLength: 0, //文件个数     
+        fileURL:[],         
+        init: function(elem, dropRegion) {
+            this.dropRegion = dropRegion || false;
+            var _this = this,windowURL = window.URL || window.webkitURL;
+            if (!this.dropRegion) {//是否启用拖拽上传文件
+                elem.on('change', function(e) {
+
+                    _this.fileLength = this.files.length;
+
+                    if (_this.fileLength == 1) { //单个文件时
+
+                        _this.fileSize = this.files[0].size;
+                        _this.fileName.push(this.files[0].name);
+                        _this.fileType.push(this.files[0].type);                       
+                        _this.fileURL.push((window.URL || window.webkitURL).createObjectURL(this.files[0]));
+
+                    } else if (_this.fileLength > 1) { //多个文件时
+
+                        var i = 0;
+                        while (i < _this.fileLength) {
+
+                            _this.fileSize += this.files[i].size;
+                            _this.fileName.push(this.files[i].name);
+                            _this.fileType.push(this.files[i].type);
+                            _this.fileURL.push((window.URL || window.webkitURL).createObjectURL(this.files[i]));
+                            i++;
+                        }
+
+                    }
+                    _this.getFileSize();
+                    
+                });
+            } else {
+                dropRegion.on('dragenter', function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();                   
+                });
+                dropRegion.on('dragover', function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();                   
+                });
+                dropRegion[0].ondrop = function(e){//jquery的drop居然有问题
+                	e.stopPropagation();
+                    e.preventDefault();
+                    var files = e.dataTransfer.files;                    
+                   	_this.fileLength = files.length;
+
+                   	if (_this.fileLength == 1) { //单个文件时
+
+                        _this.fileSize = files[0].size;
+                        _this.fileName.push(files[0].name);
+                        _this.fileType.push(files[0].type);
+                        _this.fileURL.push(files[0].getAsDataURL());
+
+                    } else if (_this.fileLength > 1) { //多个文件时
+
+                        var i = 0;
+                        while (i < _this.fileLength) {
+
+                            _this.fileSize += files[i].size;
+                            _this.fileName.push(files[i].name);
+                            _this.fileType.push(files[i].type);
+                            _this.fileURL.push(files[i].getAsDataURL());
+                            i++;
+                        }
+
+                    }
+                    _this.getFileSize();
+                }
+                /*dropRegion.on('drop', function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    var files = e.dataTransfer.files;                    
+                   	_this.fileLength = files.length;
+                });*/                
+            }            
+
+        },
+        getFileSize: function() {
+            //返回文件大小
+            var aMultiples = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB", "BB", "NB", "DB", "CB"],
+                size = this.fileSize;
+            for (var i = 0; size > 1; size /= 1024, i++) {
+                this.fileSize = size.toFixed(2) + ' ' + aMultiples[i];
+            }
+            return this.fileSize;
+        },
+        showImg: function() {
+            //显示上传图片
+            $('img').attr('src',this.fileURL[0]);
+            //$('p').css('background','url('+ this.fileURL[0] +')');
+            (window.URL || window.webkitURL).revokeObjectURL(this.fileURL[0]);
+        }
+    };    
+
+    File.init($('input'));
+    </script>
+</body>
+
+</html>

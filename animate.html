@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel="stylesheet" href="animate.css" />
+    <style type="text/css">
+      p{
+          font-size: 54px;
+          color: #435859;
+          font-weight: bold;
+          text-align: center;
+          margin-top: 200px;
+      }
+    </style>
+</head>
+<body>
+        <!-- <p class="animated flash">Animate</p> -->
+        <p>Animate</p>
+        <script src="jquery-3.1.1.min.js"></script>
+        <script>
+        $.fn.extend({//animateCss绑定到jquery
+            animateCss: function (animationName) {
+                var animationEnd = 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend';
+                this.addClass('animated ' + animationName).one(animationEnd, function() {
+                    $(this).removeClass('animated ' + animationName);
+                });
+            }
+        });
+        (function(){
+            //$('p').animateCss('bounce');
+            //$('p').animateCss('flash');
+            $('p').addClass('animated flash');
+        })();
+        </script>
+</body>
+</html>

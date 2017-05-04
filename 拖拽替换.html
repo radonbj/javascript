@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+		body, html{
+			overflow-x: hidden;
+		}
+		.box{
+			width: 100%;
+			position: relative;
+		}
+		.box div{
+			width: 100%;
+			height: 190px;
+			background: #ccc;
+			margin: 10px 0;
+			cursor: move;			
+		}
+		.elem2{
+			width: 100%;
+			height: 190px;
+			background: #ccc;
+			position: absolute;
+			border:1px solid red;
+		}
+		
+	</style>
+</head>
+<body>
+	<div class="box">
+		<div></div>
+		<div></div>
+		<div></div>
+		<div></div>
+		<div></div>
+		<div></div>
+		<div></div>
+		<div></div>
+	</div>
+	<script>
+		window.onload=function(){
+			var odiv = document.getElementsByClassName('box')[0].getElementsByTagName('div'),
+			    n;
+			for(var i = 0;n = odiv.length, i < n ; i++){
+				drag(odiv[i],dragfn);
+			}
+			function dragfn(btn,elem){
+				var index = collTest(btn,elem);				
+				if(index !== 'undefined'){
+					odiv[i].style.opacity = 0.8;
+				}else{
+					return false;
+				}
+			}
+		}
+		//拖拽
+		function drag(elem,fn){
+			elem.onmousedown=function(ev){
+			var oEvent=ev || event,
+				disX=oEvent.clientX-elem.offsetLeft,
+				disY=oEvent.clientY-elem.offsetTop;
+				
+				var elem2 = elem.cloneNode(true);
+				elem2.className = 'elem2';
+				elem.style.opacity = 0.5;
+				document.getElementsByTagName('body')[0].appendChild(elem2);	
+				elem2.style.left=disX+'px';
+				elem2.style.top=disY+'px';
+				
+			document.onmousemove=function(ev){
+				var oEvent=ev || event;				
+				elem2.style.left=oEvent.clientX-disX+'px';
+				elem2.style.top=oEvent.clientY-disY+'px';
+
+				fn && fn(elem,siblings(elem));
+			}
+			document.onmouseup=function(){
+				document.onmousemove=null;
+				document.onmouseup=null;	
+				elem.style.opacity = 1;
+				elem.releaseCapture && elem.releaseCapture();
+				document.getElementsByTagName('body')[0].removeChild(elem2);		
+			}
+			elem.setCapture && elem.setCapture();
+			return false;	
+		  }
+		}
+		
+		//碰撞检测
+		function collTest(btn,elem){
+			var posi = position(btn),				
+				l1=posi.x,
+				r1=l1+btn.offsetWidth,
+				t1=posi.y,
+				b1=t1+btn.offsetHeight,
+				n,
+				arr =[],
+				k;
+				
+			for(var i = 0;n = elem.length,i < n;i++ ){
+				var posi2 = position(elem[i]);
+				arr.push({
+						l2 : posi2.x,
+						r2 : posi2.x+elem[i].offsetWidth,
+						t2 : posi2.y,
+						b2 : posi2.y+elem[i].offsetHeight
+				});
+			}			
+
+			for(var j = 0; j < n;j++){
+				//if(r1>l2 && l1<r2 && b1>t2 && t1<b2){				
+				if(r1<arr[j].l2 || l1>arr[j].r2 || b1<arr[j].t2 || t1>arr[j].b2){	
+					
+				}else{
+					k = j > 6 ? 6 : j;
+				}						
+			}
+			return k;
+		}
+		
+		//元素坐标计算
+		function position(elem){
+			var x = elem.getBoundingClientRect().left+document.documentElement.scrollLeft,
+			y = elem.getBoundingClientRect().top+document.documentElement.scrollTop;
+			return {x : x ,y : y};
+		}
+		//查找兄弟元素		
+		function siblings(o){//参数o就是想取谁的兄弟节点，就把那个元素传进去 
+			var a=[];//定义一个数组，用来存o的兄弟元素 
+			var p=o.previousSibling; 
+			while(p){//先取o的哥哥们 判断有没有上一个哥哥元素，如果有则往下执行 p表示previousSibling 
+				if(p.nodeType===1){
+					a.push(p); 
+				} 
+				p=p.previousSibling//最后把上一个节点赋给p 
+			} 
+				a.reverse()//把顺序反转一下 这样元素的顺序就是按先后的了 
+			var n=o.nextSibling;//再取o的弟弟 
+			while(n){//判断有没有下一个弟弟结点 n是nextSibling的意思 
+				if(n.nodeType===1){
+				a.push(n); 
+			} 
+				n=n.nextSibling; 
+			} 
+			return a//最后按从老大到老小的顺序，把这一组元素返回 
+		} 
+	</script>
+</body>
+</html>
