@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+   <input type="button" value="添加" />   
+    <iframe src="http://hd.tzj.iwgame.test/special/test01/B.html" frameborder="0" width="100%"></iframe>
+    <script>
+        document.domain = 'iwgame.test';
+        function get_iframe_height(elem){
+            if(elem.attachEvent){                
+                return elem.contentWindow.document.documentElement.scrollHeight;                           
+            }else{
+                return elem.contentDocument.body.scrollHeight;
+            }
+        };
+        function set_iframe_centents(elem){
+           return elem.contentDocument || elem.contentWindow.document.documentElement;
+        }
+        var from = document.getElementsByTagName('iframe');
+        from[0].onload = function() {
+            from[0].style.height = get_iframe_height(from[0])+'px';  
+            if(window.parent.get_height) window.parent.get_height(document.getElementsByTagName('body')[0].scrollHeight);
+        };
+        document.getElementsByTagName('input')[0].onclick=function(){
+                set_iframe_centents(from[0]).getElementsByTagName('body')[0].innerHTML = 'kdjksdjkjs';                     
+        };
+                
+    </script>
+</body>
+
+</html>
