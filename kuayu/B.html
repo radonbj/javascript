@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+        html,body{
+            height: 300px;
+        }
+    </style>
+    <script>
+        document.domain = 'iwgame.test';       
+		function pseth(){
+			var pen = top.document.getElementsByTagName('iframe');
+			var height = top.frames['A'].frames['C'].location.hash;
+			pen.style.height = height.split('#')[1] + 'px';
+		}
+    </script>
+</head>
+<body>
+    sdfsdf
+</body>
+</html>
