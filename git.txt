@@ -1,0 +1,11 @@
+1、git add xxxx.
+2  git commit -m"beizhu"
+3  git pull origin 远端分支 （远端分支更新本地分支）
+4  git push origin 当前分支 （当前分支推到远端分支）
+
+5  从当前分支创建分支  git checkout -b 分支名字
+6  切换分支  git checkout 分支名
+7  合并分支  git merge 分支
+8  查看远程分支 git branch -r
+9  查看本地分支 git branch
+10 删除远程分支  git push origin --delete <name>
