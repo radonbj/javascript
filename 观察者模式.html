@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+       <input type="number" />
+       <input type="number" />
+    <script>
+        let pubsub = {};
+        (function(q) {
+            let topics = {}, //回调函数存放的数组
+                subUid = -1;
+
+            //发布
+            q.publish = (topic, args) => {
+
+                if (!topics[topic]) return;
+
+                setTimeout(() => {
+                    let subscribers = topics[topic],
+                        len = subscribers ? subscribers.length : 0;
+
+                    while (len--) {
+                        subscribers[len].func(topic, args);
+                    }
+                }, 0)
+            };
+
+            //订阅
+            q.subscribe = (topic, func) => {
+
+                if (!topics[topic]) topics[topic] = [];
+
+                var token = (++subUid).toString();
+
+                topics[topic].push({
+                    token: token,
+                    func: func
+                });
+
+                return token;
+            };
+
+            //退订
+            q.unsubscribe = (token) => {
+                for (let item in topics) {
+                    if (topics[m]) {
+                        topics[m].forEach((val, i) => {
+                            if (val.token === token) {
+                                val.splice(i, 1);
+                                return token;
+                            }
+                        })
+                    }
+                }
+                return false;
+            };
+        }(pubsub))
+
+
+        //----------第二版---------------------------------
+        let observer = {
+            //订阅
+            addSubscriber: function(callback) {
+                this.subscribers[this.subscribers.length] = callback;
+            },
+
+            //退订
+            removeSubscriber: callback => {
+                this.subscribers.forEach(item => {
+                    if (item === callback) delete item;
+                })
+            },
+            //发布
+            publish: function(what) {
+                for (var i = 0; i < this.subscribers.length; i++) {
+                    if (typeof this.subscribers[i] === 'function') {
+                        this.subscribers[i](what);
+                    }
+                }
+            },
+
+            //将对象o具有观察者功能
+            make: function(o) {
+                for (var i in this) {
+                    o[i] = this[i];
+                    o.subscribers = [];
+                }
+            }
+        };
+        
+        //--------------第三版-------------------------------
+        let mack = {
+            clietList: {'name':1},//缓存列表
+            //订阅
+            listen: function(key ,fn ) {                
+                if(!this.clietList[key]) this.clietList[key] = [];
+                this.clietList[key].push(fn);
+            },
+            //发布
+            trigger: function() {
+                let key = Array.prototype.shift.call(arguments),
+                    fns = this.clietList[key];               
+                if(!this.clietList[key]) return -1;
+                fns.forEach(item => {
+                    item.apply(this,arguments);
+                })
+            },
+            //退订
+            remove: function(key) {
+                if(this.clietList[key]){
+                    delete this.clietList[key];
+                }
+            }
+        }
+        
+        let inp = document.querySelectorAll('input');
+        
+        //实现双向绑定
+        mack.listen('inp1',function(val){
+            inp[1].value = val;
+        })
+        mack.listen('inp2',function(val){
+            inp[0].value = val;
+        })
+        
+        inp[0].oninput = function(){
+            let val = this.value;
+            mack.trigger('inp1',val);           
+        }
+        inp[1].oninput = function(){
+            let val = this.value;
+            mack.trigger('inp2',val);            
+        }
+    </script>
+</body>
+
+</html>
