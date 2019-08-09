@@ -1,0 +1,129 @@
+import { Vue } from "vue-property-decorator";
+import { LoadingBar } from "iview";
+import router from "@/router";
+import { baseUrl } from "./../config/include";
+import "fetch-detector";
+import "fetch-ie8";
+require("es6-promise").polyfill();
+require("es6-promise/auto");
+
+Vue.component("LoadingBar", LoadingBar);
+
+const getURL = (url: string, data: any = {}) => {
+    url = url + "?";
+
+    Object.keys(data).forEach((key, index) => {
+        if (index == Object.keys(data).length - 1) {
+            url += key + "=" + data[key];
+        } else {
+            url += key + "=" + data[key] + "&";
+        }
+    });
+
+    return url;
+};
+
+const getCookie = (cname: string) => {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(";");
+    for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == " ") {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+};
+
+export default async (url: string, data: any = {}, type: string = "GET") => {
+
+    type = type.toUpperCase();
+    url = baseUrl + url;
+    data.t = Date.now();
+    LoadingBar.start();
+
+    let requestConfig: any = {
+        credentials: "include",
+        //携带cookie(omit：默认值，same-origin: 同源, 表示同域请求才发送cookie，include：一直发送)
+        method: type,
+        //请求类型
+        headers: {
+            Accept: "application/json",
+            // "Content-Type": "application/json"
+            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+            loginType: "PC"
+        },
+        mode: "cors",
+        //请求模式（same-origin，cors，cors-with-forced-preflight，no-cors）
+        cache: "default"
+        //处理缓存的方式（default，no-store，no-cache，reload，force-cache，only-if-cached）
+    };
+
+    if (type == "GET") {
+        url = getURL(url, data);
+    }
+
+    if (type == "POST") {
+
+        Object.defineProperty(requestConfig, "body", {
+            value: JSON.stringify(data)
+        });
+
+    }
+
+    let TGC = getCookie("TGC"),
+        U = getCookie("U"),
+        TOKENUUMS = getCookie("_TOKENUUMS"),
+        ASE_TOKEN = getCookie("ASE_TOKEN");
+
+    try {
+
+        const response = await fetch(url, requestConfig);
+
+        if (response.status == 401) {
+
+            if (response.headers.get("location") == "/#/login") {
+                //跳转登录
+                router.push("/login");
+
+            } else {
+                //跳转uums
+                window.location.href = (response.headers.get("location") as string);
+
+            }
+
+        } else {
+
+            let responseJson: any = null;
+
+            if (response.status == 200) {
+
+                responseJson = await response.json();
+
+            } else {
+
+                responseJson = await response.text();
+
+            }
+
+            if (responseJson) {
+                //异常处理
+                LoadingBar.finish();
+
+            }
+
+            return responseJson;
+
+        }
+
+    } catch (error) {
+
+        LoadingBar.finish();
+        throw new Error(error);
+
+    }
+};
